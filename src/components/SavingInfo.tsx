@@ -1,5 +1,6 @@
+import { TonConnectButton } from "@tonconnect/ui-react";
+
 export function SavingInfo() {
-    import { TonConnectButton } from "@tonconnect/ui-react";
     return (
         <div className="px-4 pt-6 pb-24">
             <div className="bg-zinc-900 rounded-3xl p-8 text-center border border-zinc-700">
@@ -12,7 +13,7 @@ export function SavingInfo() {
                     на Tier-1 турнирах CS2 и забирай весь банк
                 </p>
 
-<TonConnectButton className="w-full !bg-blue-600 hover:!bg-blue-700 !py-4 !rounded-2xl !text-xl !font-bold" />
+                <TonConnectButton className="w-full !bg-blue-600 hover:!bg-blue-700 !py-4 !rounded-2xl !text-xl !font-bold" />
             </div>
 
             <p className="text-center text-gray-500 text-xs mt-8">
