@@ -6,6 +6,7 @@ import { Tournaments } from './pages/Tournaments';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { MyBets } from './pages/MyBets';
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/tournaments" element={<Tournaments />} />
-              <Route path="/mybets" element={<div className="p-4 text-center text-2xl text-white">Мои ставки (скоро)</div>} />
+              <Route path="/mybets" element={<MyBets />} />
               <Route path="/wallet" element={<div className="p-4 text-center text-2xl text-white">Кошелёк</div>} />
             </Routes>
           </main>
