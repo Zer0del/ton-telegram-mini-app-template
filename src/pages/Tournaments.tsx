@@ -1,27 +1,9 @@
 import { useState } from 'react';
 
 const tournaments = [
-  {
-    name: "BLAST Open Rotterdam 2026",
-    date: "18–29 марта",
-    prize: "$1 100 000",
-    status: "LIVE",
-    color: "bg-red-500"
-  },
-  {
-    name: "ESL Pro League Season 23 Finals",
-    date: "13–15 марта",
-    prize: "$275 000",
-    status: "Скоро",
-    color: "bg-yellow-500"
-  },
-  {
-    name: "PGL Bucharest 2026",
-    date: "3–11 апреля",
-    prize: "$1 250 000",
-    status: "Скоро",
-    color: "bg-yellow-500"
-  }
+  { name: "BLAST Open Rotterdam 2026", date: "18–29 марта", prize: "$1 100 000", status: "LIVE", color: "bg-red-500" },
+  { name: "ESL Pro League Season 23 Finals", date: "13–15 марта", prize: "$275 000", status: "Скоро", color: "bg-yellow-500" },
+  { name: "PGL Bucharest 2026", date: "3–11 апреля", prize: "$1 250 000", status: "Скоро", color: "bg-yellow-500" }
 ];
 
 export function Tournaments() {
@@ -29,12 +11,21 @@ export function Tournaments() {
   const [selectedBet, setSelectedBet] = useState({ tournament: '', mode: '', amount: 0 });
 
   const openBet = (tournament: string, mode: string, amount: number) => {
+    const currentCrystals = parseInt(localStorage.getItem('crystals') || '1000');
+    if (currentCrystals < amount) {
+      alert('❌ Недостаточно кристалликов!');
+      return;
+    }
     setSelectedBet({ tournament, mode, amount });
     setShowModal(true);
   };
 
   const confirmBet = () => {
-    alert(`✅ Ставка размещена!\n\n${selectedBet.mode} за ${selectedBet.amount} cryst\nТурнир: ${selectedBet.tournament}`);
+    let current = parseInt(localStorage.getItem('crystals') || '1000');
+    current -= selectedBet.amount;
+    localStorage.setItem('crystals', current.toString());
+
+    alert(`✅ Ставка размещена!\n\n${selectedBet.mode} за ${selectedBet.amount} cryst\nТурнир: ${selectedBet.tournament}\n\nБаланс обновлён!`);
     setShowModal(false);
   };
 
