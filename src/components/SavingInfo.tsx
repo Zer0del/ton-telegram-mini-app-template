@@ -1,7 +1,15 @@
 import { TonConnectButton } from "@tonconnect/ui-react";
 
 export function SavingInfo() {
-    const crystals = localStorage.getItem('crystals') ? parseInt(localStorage.getItem('crystals')!) : 1000;
+    const crystals = parseInt(localStorage.getItem('crystals') || '1000');
+
+    const buyCrystals = (amount: number, priceTON: number) => {
+        if (confirm(`Купить ${amount} кристалликов за ~${priceTON} TON?\n\n(пока симуляция — баланс просто вырастет)`)) {
+            localStorage.setItem('crystals', (crystals + amount).toString());
+            alert(`✅ Куплено ${amount} cryst! Баланс обновлён.`);
+            window.location.reload(); // обновляем баланс на экране
+        }
+    };
 
     return (
         <div className="px-4 pt-6 pb-24">
@@ -15,7 +23,12 @@ export function SavingInfo() {
                     на Tier-1 турнирах CS2 и забирай весь банк
                 </p>
 
-                <TonConnectButton className="w-full !bg-blue-600 hover:!bg-blue-700 !py-4 !rounded-2xl !text-xl !font-bold" />
+                <TonConnectButton className="w-full !bg-blue-600 hover:!bg-blue-700 !py-4 !rounded-2xl !text-xl !font-bold mb-4" />
+
+                <div className="grid grid-cols-2 gap-3">
+                    <button onClick={() => buyCrystals(500, 0.25)} className="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm">+500 cryst<br/><span className="text-emerald-400">≈0.25 TON</span></button>
+                    <button onClick={() => buyCrystals(2000, 0.9)} className="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm">+2000 cryst<br/><span className="text-emerald-400">≈0.9 TON</span></button>
+                </div>
             </div>
 
             <p className="text-center text-gray-500 text-xs mt-8">
