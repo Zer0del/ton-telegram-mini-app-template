@@ -125,7 +125,7 @@ export function Tournaments() {
 
   return (
     <div className="p-4 pb-24 space-y-6">
-      <h1 className="text-3xl font-black tracking-tighter text-center">Турниры CS2</h1>
+      <h1 className="text-3xl font-black tracking-[-0.04em] text-center">Турниры CS2</h1>
 
       {tournamentsData.map((t, i) => (
         <div key={i} className="bg-zinc-900 rounded-3xl p-6">
@@ -142,14 +142,15 @@ export function Tournaments() {
               const bank = getPoolAmount(t.name, mode);
               return (
                 <div key={idx} className="relative">
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-xs px-3 py-0.5 rounded-full font-medium shadow">
-                    Банк: {bank}
+                  {/* Банк — теперь супер заметный */}
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 to-orange-500 text-zinc-950 text-xs font-bold px-4 py-1 rounded-full shadow-lg shadow-orange-500/50 flex items-center gap-1 tracking-tight">
+                    💰 Банк: {bank}
                   </div>
                   <button 
                     onClick={() => openBetModal(t.name, mode)}
-                    className="w-full bg-zinc-800 hover:bg-zinc-700 py-6 rounded-3xl transition-all active:scale-[0.97]"
+                    className="w-full bg-zinc-800 hover:bg-zinc-700 py-7 rounded-3xl transition-all active:scale-[0.97]"
                   >
-                    <span className="text-2xl font-semibold tracking-[-0.02em] text-white">{mode}</span>
+                    <span className="text-2xl font-semibold tracking-[-0.03em] text-white block">{mode}</span>
                   </button>
                 </div>
               );
