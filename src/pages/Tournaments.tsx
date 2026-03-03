@@ -43,7 +43,6 @@ export function Tournaments() {
   const [prediction, setPrediction] = useState<string[]>([]);
   const [pools, setPools] = useState<Record<string, number>>({});
 
-  // Загружаем банки при открытии страницы
   useEffect(() => {
     const savedPools = JSON.parse(localStorage.getItem('pools') || '{}');
     setPools(savedPools);
@@ -100,14 +99,12 @@ export function Tournaments() {
     current -= amount;
     localStorage.setItem('crystals', current.toString());
 
-    // Добавляем в банк
     const poolKey = getPoolKey(currentTournament, currentMode);
     const newPools = { ...pools };
     newPools[poolKey] = (newPools[poolKey] || 0) + amount;
     localStorage.setItem('pools', JSON.stringify(newPools));
     setPools(newPools);
 
-    // Сохраняем ставку
     const history: Bet[] = JSON.parse(localStorage.getItem('betsHistory') || '[]');
     const newBet: Bet = {
       id: Date.now(),
@@ -128,65 +125,66 @@ export function Tournaments() {
 
   return (
     <div className="p-4 pb-24 space-y-6">
-      <h1 className="text-3xl font-black text-center">Турниры CS2</h1>
+      <h1 className="text-3xl font-black tracking-tighter text-center">Турниры CS2</h1>
 
       {tournamentsData.map((t, i) => (
         <div key={i} className="bg-zinc-900 rounded-3xl p-6">
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-start mb-5">
             <div>
-              <p className="font-bold text-xl">{t.name}</p>
+              <p className="font-semibold text-xl tracking-tight">{t.name}</p>
               <p className="text-emerald-400 text-sm">{t.date} • {t.prize}</p>
             </div>
-            <span className={`${t.color} px-3 py-1 rounded-full text-xs font-bold`}>{t.status}</span>
+            <span className={`${t.color} px-3 py-1 rounded-full text-xs font-semibold`}>{t.status}</span>
           </div>
 
-          <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {['Top-1', 'Top-3', 'Top-5'].map((mode, idx) => {
               const bank = getPoolAmount(t.name, mode);
               return (
-                <button 
-                  key={idx}
-                  onClick={() => openBetModal(t.name, mode)}
-                  className="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-2xl text-sm relative"
-                >
-                  {mode}<br/>100 cryst
-                  <div className="absolute -top-2 -right-2 bg-emerald-500 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                <div key={idx} className="relative">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-xs px-3 py-0.5 rounded-full font-medium shadow">
                     Банк: {bank}
                   </div>
-                </button>
+                  <button 
+                    onClick={() => openBetModal(t.name, mode)}
+                    className="w-full bg-zinc-800 hover:bg-zinc-700 py-6 rounded-3xl transition-all active:scale-[0.97]"
+                  >
+                    <span className="text-2xl font-semibold tracking-[-0.02em] text-white">{mode}</span>
+                  </button>
+                </div>
               );
             })}
           </div>
         </div>
       ))}
 
-      {/* Модалка предикта (та же, что раньше) */}
+      {/* Модалка предикта (без изменений) */}
       {showBetModal && currentTournamentData && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-zinc-900 rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-black text-center mb-2">Составь свой {currentMode}</h2>
+            <h2 className="text-2xl font-semibold tracking-tighter text-center mb-2">Составь свой {currentMode}</h2>
             <p className="text-center text-emerald-400 mb-6">{currentTournament}</p>
 
             <div className="mb-8">
-              <p className="uppercase text-xs text-gray-400 mb-3">Мой топ {currentMode.replace('Top-', '')}</p>
+              <p className="uppercase text-xs text-gray-400 mb-3 tracking-widest">МОЙ ТОП {currentMode.replace('Top-', '')}</p>
               <div className="space-y-2">
                 {Array.from({ length: parseInt(currentMode.replace('Top-', '')) }).map((_, i) => (
-                  <div key={i} className="bg-zinc-800 rounded-2xl px-4 py-3 flex items-center justify-between">
-                    <span className="text-emerald-400 font-bold w-6">#{i + 1}</span>
-                    <span className="flex-1 text-center font-medium">{prediction[i] || '— выбери команду'}</span>
-                    {prediction[i] && <button onClick={() => removeTeam(i)} className="text-red-400 text-xl">✕</button>}
+                  <div key={i} className="bg-zinc-800 rounded-2xl px-4 py-3.5 flex items-center justify-between">
+                    <span className="text-emerald-400 font-semibold w-6">#{i + 1}</span>
+                    <span className="flex-1 text-center font-medium text-lg">{prediction[i] || '— выбери команду'}</span>
+                    {prediction[i] && <button onClick={() => removeTeam(i)} className="text-red-400 text-2xl">✕</button>}
                   </div>
                 ))}
               </div>
             </div>
 
             <div>
-              <p className="uppercase text-xs text-gray-400 mb-3">Все команды турнира</p>
+              <p className="uppercase text-xs text-gray-400 mb-3 tracking-widest">КОМАНДЫ ТУРНИРА</p>
               <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto">
                 {currentTournamentData.teams
                   .filter(team => !prediction.includes(team))
                   .map(team => (
-                    <button key={team} onClick={() => addTeam(team)} className="bg-zinc-800 hover:bg-zinc-700 py-3 rounded-2xl text-sm transition-colors">
+                    <button key={team} onClick={() => addTeam(team)} className="bg-zinc-800 hover:bg-zinc-700 py-3.5 rounded-2xl text-sm font-medium transition-colors">
                       {team}
                     </button>
                   ))}
@@ -194,13 +192,13 @@ export function Tournaments() {
             </div>
 
             <div className="mt-8 flex gap-3">
-              <button onClick={() => setShowBetModal(false)} className="flex-1 py-4 bg-zinc-800 rounded-2xl text-lg">Отмена</button>
+              <button onClick={() => setShowBetModal(false)} className="flex-1 py-4 bg-zinc-800 rounded-2xl text-lg font-medium">Отмена</button>
               <button 
                 onClick={confirmBet}
                 disabled={prediction.length !== parseInt(currentMode.replace('Top-', ''))}
-                className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-zinc-700 rounded-2xl text-lg font-bold transition-colors"
+                className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-zinc-700 rounded-2xl text-lg font-semibold transition-colors"
               >
-                Подтвердить ставку (100 cryst)
+                Подтвердить ставку
               </button>
             </div>
           </div>
