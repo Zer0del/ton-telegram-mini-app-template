@@ -1,11 +1,13 @@
 import { TonConnectButton } from "@tonconnect/ui-react";
 
 export function SavingInfo() {
+    const crystals = localStorage.getItem('crystals') ? parseInt(localStorage.getItem('crystals')!) : 1000;
+
     return (
         <div className="px-4 pt-6 pb-24">
             <div className="bg-zinc-900 rounded-3xl p-8 text-center border border-zinc-700">
                 <p className="uppercase tracking-widest text-emerald-500 text-xs mb-1 font-medium">ТВОЙ БАЛАНС</p>
-                <div className="text-[68px] leading-none font-black text-white mb-2">0</div>
+                <div className="text-[68px] leading-none font-black text-white mb-2">{crystals}</div>
                 <p className="text-2xl font-bold text-emerald-400 mb-8">КРИСТАЛЛИКОВ</p>
 
                 <p className="text-gray-400 text-[15px] leading-snug mb-10">
