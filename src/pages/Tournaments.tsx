@@ -6,6 +6,14 @@ const tournaments = [
   { name: "PGL Bucharest 2026", date: "3–11 апреля", prize: "$1 250 000", status: "Скоро", color: "bg-yellow-500" }
 ];
 
+interface Bet {
+  id: number;
+  tournament: string;
+  mode: string;
+  amount: number;
+  date: string;
+}
+
 export function Tournaments() {
   const [showModal, setShowModal] = useState(false);
   const [selectedBet, setSelectedBet] = useState({ tournament: '', mode: '', amount: 0 });
@@ -24,6 +32,18 @@ export function Tournaments() {
     let current = parseInt(localStorage.getItem('crystals') || '1000');
     current -= selectedBet.amount;
     localStorage.setItem('crystals', current.toString());
+
+    // Сохраняем ставку в историю
+    const history: Bet[] = JSON.parse(localStorage.getItem('betsHistory') || '[]');
+    const newBet: Bet = {
+      id: Date.now(),
+      tournament: selectedBet.tournament,
+      mode: selectedBet.mode,
+      amount: selectedBet.amount,
+      date: new Date().toLocaleString('ru-RU')
+    };
+    history.unshift(newBet); // новая ставка сверху
+    localStorage.setItem('betsHistory', JSON.stringify(history));
 
     alert(`✅ Ставка размещена!\n\n${selectedBet.mode} за ${selectedBet.amount} cryst\nТурнир: ${selectedBet.tournament}\n\nБаланс обновлён!`);
     setShowModal(false);
