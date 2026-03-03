@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const tournamentsData = [
   {
@@ -31,7 +31,7 @@ interface Bet {
   id: number;
   tournament: string;
   mode: string;
-  prediction: string[]; // например ["Vitality", "NaVi", "G2 Esports"]
+  prediction: string[];
   amount: number;
   date: string;
 }
@@ -40,10 +40,23 @@ export function Tournaments() {
   const [showBetModal, setShowBetModal] = useState(false);
   const [currentTournament, setCurrentTournament] = useState('');
   const [currentMode, setCurrentMode] = useState('');
-  const [currentAmount, setCurrentAmount] = useState(0);
   const [prediction, setPrediction] = useState<string[]>([]);
+  const [pools, setPools] = useState<Record<string, number>>({});
 
-  const openBetModal = (tournamentName: string, mode: string, amount: number) => {
+  // Загружаем банки при открытии страницы
+  useEffect(() => {
+    const savedPools = JSON.parse(localStorage.getItem('pools') || '{}');
+    setPools(savedPools);
+  }, []);
+
+  const getPoolKey = (tournament: string, mode: string) => `${tournament}|${mode}`;
+
+  const getPoolAmount = (tournament: string, mode: string) => {
+    return pools[getPoolKey(tournament, mode)] || 0;
+  };
+
+  const openBetModal = (tournamentName: string, mode: string) => {
+    const amount = 100;
     const currentCrystals = parseInt(localStorage.getItem('crystals') || '1000');
     if (currentCrystals < amount) {
       alert('❌ Недостаточно кристалликов!');
@@ -59,15 +72,13 @@ export function Tournaments() {
 
     setCurrentTournament(tournamentName);
     setCurrentMode(mode);
-    setCurrentAmount(amount);
     setPrediction([]);
     setShowBetModal(true);
   };
 
   const addTeam = (team: string) => {
     const maxSlots = parseInt(currentMode.replace('Top-', ''));
-    if (prediction.length >= maxSlots) return;
-    if (prediction.includes(team)) return;
+    if (prediction.length >= maxSlots || prediction.includes(team)) return;
     setPrediction([...prediction, team]);
   };
 
@@ -84,17 +95,26 @@ export function Tournaments() {
       return;
     }
 
+    const amount = 100;
     let current = parseInt(localStorage.getItem('crystals') || '1000');
-    current -= currentAmount;
+    current -= amount;
     localStorage.setItem('crystals', current.toString());
 
+    // Добавляем в банк
+    const poolKey = getPoolKey(currentTournament, currentMode);
+    const newPools = { ...pools };
+    newPools[poolKey] = (newPools[poolKey] || 0) + amount;
+    localStorage.setItem('pools', JSON.stringify(newPools));
+    setPools(newPools);
+
+    // Сохраняем ставку
     const history: Bet[] = JSON.parse(localStorage.getItem('betsHistory') || '[]');
     const newBet: Bet = {
       id: Date.now(),
       tournament: currentTournament,
       mode: currentMode,
       prediction: [...prediction],
-      amount: currentAmount,
+      amount,
       date: new Date().toLocaleString('ru-RU')
     };
     history.unshift(newBet);
@@ -121,48 +141,52 @@ export function Tournaments() {
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-3">
-            <button onClick={() => openBetModal(t.name, 'Top-1', 50)} className="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-2xl text-sm">Top-1<br/>50 cryst</button>
-            <button onClick={() => openBetModal(t.name, 'Top-3', 100)} className="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-2xl text-sm">Top-3<br/>100 cryst</button>
-            <button onClick={() => openBetModal(t.name, 'Top-5', 200)} className="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-2xl text-sm">Top-5<br/>200 cryst</button>
+            {['Top-1', 'Top-3', 'Top-5'].map((mode, idx) => {
+              const bank = getPoolAmount(t.name, mode);
+              return (
+                <button 
+                  key={idx}
+                  onClick={() => openBetModal(t.name, mode)}
+                  className="bg-zinc-800 hover:bg-zinc-700 py-4 rounded-2xl text-sm relative"
+                >
+                  {mode}<br/>100 cryst
+                  <div className="absolute -top-2 -right-2 bg-emerald-500 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                    Банк: {bank}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       ))}
 
-      {/* Модалка предикта */}
+      {/* Модалка предикта (та же, что раньше) */}
       {showBetModal && currentTournamentData && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-zinc-900 rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-black text-center mb-2">Составь свой {currentMode}</h2>
             <p className="text-center text-emerald-400 mb-6">{currentTournament}</p>
 
-            {/* Мой топ */}
             <div className="mb-8">
               <p className="uppercase text-xs text-gray-400 mb-3">Мой топ {currentMode.replace('Top-', '')}</p>
               <div className="space-y-2">
                 {Array.from({ length: parseInt(currentMode.replace('Top-', '')) }).map((_, i) => (
                   <div key={i} className="bg-zinc-800 rounded-2xl px-4 py-3 flex items-center justify-between">
-                    <span className="text-emerald-400 font-bold">#{i + 1}</span>
+                    <span className="text-emerald-400 font-bold w-6">#{i + 1}</span>
                     <span className="flex-1 text-center font-medium">{prediction[i] || '— выбери команду'}</span>
-                    {prediction[i] && (
-                      <button onClick={() => removeTeam(i)} className="text-red-400 text-xl">✕</button>
-                    )}
+                    {prediction[i] && <button onClick={() => removeTeam(i)} className="text-red-400 text-xl">✕</button>}
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Пул команд */}
             <div>
               <p className="uppercase text-xs text-gray-400 mb-3">Все команды турнира</p>
               <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto">
                 {currentTournamentData.teams
                   .filter(team => !prediction.includes(team))
                   .map(team => (
-                    <button
-                      key={team}
-                      onClick={() => addTeam(team)}
-                      className="bg-zinc-800 hover:bg-zinc-700 py-3 rounded-2xl text-sm transition-colors"
-                    >
+                    <button key={team} onClick={() => addTeam(team)} className="bg-zinc-800 hover:bg-zinc-700 py-3 rounded-2xl text-sm transition-colors">
                       {team}
                     </button>
                   ))}
@@ -176,7 +200,7 @@ export function Tournaments() {
                 disabled={prediction.length !== parseInt(currentMode.replace('Top-', ''))}
                 className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 disabled:bg-zinc-700 rounded-2xl text-lg font-bold transition-colors"
               >
-                Подтвердить ставку
+                Подтвердить ставку (100 cryst)
               </button>
             </div>
           </div>
