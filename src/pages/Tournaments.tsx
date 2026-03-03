@@ -24,6 +24,18 @@ export function Tournaments() {
       alert('❌ Недостаточно кристалликов!');
       return;
     }
+
+    // Проверка: уже есть ставка на этот турнир + режим?
+    const history: Bet[] = JSON.parse(localStorage.getItem('betsHistory') || '[]');
+    const alreadyPlaced = history.some(b => 
+      b.tournament === tournament && b.mode === mode
+    );
+
+    if (alreadyPlaced) {
+      alert(`❌ Вы уже сделали ставку на ${mode} в турнире ${tournament}`);
+      return;
+    }
+
     setSelectedBet({ tournament, mode, amount });
     setShowModal(true);
   };
@@ -33,7 +45,6 @@ export function Tournaments() {
     current -= selectedBet.amount;
     localStorage.setItem('crystals', current.toString());
 
-    // Сохраняем ставку в историю
     const history: Bet[] = JSON.parse(localStorage.getItem('betsHistory') || '[]');
     const newBet: Bet = {
       id: Date.now(),
@@ -42,7 +53,7 @@ export function Tournaments() {
       amount: selectedBet.amount,
       date: new Date().toLocaleString('ru-RU')
     };
-    history.unshift(newBet); // новая ставка сверху
+    history.unshift(newBet);
     localStorage.setItem('betsHistory', JSON.stringify(history));
 
     alert(`✅ Ставка размещена!\n\n${selectedBet.mode} за ${selectedBet.amount} cryst\nТурнир: ${selectedBet.tournament}\n\nБаланс обновлён!`);
