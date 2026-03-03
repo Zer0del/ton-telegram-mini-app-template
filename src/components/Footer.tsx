@@ -1,63 +1,31 @@
-
 import { Link } from "react-router-dom";
-import { MdAdminPanelSettings, MdSettings, MdWallet } from "react-icons/md";
-import { Address } from 'ton-core';
-import { FaHome } from 'react-icons/fa';
-import { useTonConnect } from "../hooks/useTonConnect";
+import { FaHome, FaTrophy, FaList, FaWallet } from "react-icons/fa";
 
 export function Footer() {
-
-    const ADMIN_ADDRESS = __ADMIN_ADDRESS__;
-    const { wallet } = useTonConnect();
-
-    const isAdmin = () => {
-        return false
-
-        if (wallet && (Address.parse(ADMIN_ADDRESS).equals(Address.parse(wallet)))) {
-            return true
-        } else {
-            return false
-
-        }
-    }
     return (
         <div>
-            <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] w-full md:max-w-xl bg-[#272a2f] flex justify-around items-center z-50 text-xs">
+            <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-zinc-950 border-t border-zinc-800 flex justify-around items-center z-50 text-xs py-1">
+                
+                <Link to="/" className="text-center text-gray-400 hover:text-white flex flex-col items-center py-1 px-3">
+                    <FaHome size={24} />
+                    <p className="mt-0.5 text-[10px]">Главная</p>
+                </Link>
 
-                <div className="text-center text-gray-300 w-1/4 p-2 m-1 ">
+                <Link to="/tournaments" className="text-center text-gray-400 hover:text-white flex flex-col items-center py-1 px-3">
+                    <FaTrophy size={24} />
+                    <p className="mt-0.5 text-[10px]">Турниры</p>
+                </Link>
 
-                    <Link to="/">
-                        <FaHome size={25} className="w-8 h-8 mx-auto" />
-                        <p className="mt-1">HOME </p>
-                    </Link>
-                </div>
+                <Link to="/mybets" className="text-center text-gray-400 hover:text-white flex flex-col items-center py-1 px-3">
+                    <FaList size={24} />
+                    <p className="mt-0.5 text-[10px]">Мои ставки</p>
+                </Link>
 
-                <div className="text-center text-gray-300 w-1/4 p-2 m-1 ">
-                    <Link to="/plan">
-                        <MdWallet className="w-8 h-8 mx-auto" />
-                        <p className="mt-1">WALLET</p>
-                    </Link>
-
-                </div>
-                <div className="text-center text-gray-300 w-1/4 p-2 m-1 ">
-                    <Link to="/plan">
-                        <MdSettings className="w-8 h-8 mx-auto" />
-                        <p className="mt-1">SETTING</p>
-                    </Link>
-
-                </div>
-
-                {isAdmin() && <div className="text-center text-gray-300 w-1/4 p-2 m-1 ">
-                    <Link to="/admin">
-                        <MdAdminPanelSettings className="w-8 h-8 mx-auto" />
-                        <p className="mt-1">Admin</p>
-                    </Link>
-
-                </div>}
+                <Link to="/wallet" className="text-center text-emerald-400 hover:text-white flex flex-col items-center py-1 px-3">
+                    <FaWallet size={24} />
+                    <p className="mt-0.5 text-[10px]">Кошелёк</p>
+                </Link>
             </div>
-
-
-        </div >
+        </div>
     );
-
 }
