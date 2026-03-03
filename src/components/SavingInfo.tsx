@@ -4,10 +4,19 @@ export function SavingInfo() {
     const crystals = parseInt(localStorage.getItem('crystals') || '1000');
 
     const buyCrystals = (amount: number, priceTON: number) => {
-        if (confirm(`Купить ${amount} кристалликов за ~${priceTON} TON?\n\n(пока симуляция — баланс просто вырастет)`)) {
+        if (confirm(`Купить ${amount} кристалликов за ~${priceTON} TON?\n\n(пока симуляция)`)) {
             localStorage.setItem('crystals', (crystals + amount).toString());
-            alert(`✅ Куплено ${amount} cryst! Баланс обновлён.`);
-            window.location.reload(); // обновляем баланс на экране
+            alert(`✅ Куплено ${amount} cryst!`);
+            window.location.reload();
+        }
+    };
+
+    const resetAllData = () => {
+        if (confirm("🔴 СБРОСИТЬ ВСЁ?\n\nСтавки будут удалены, баланс вернётся на 1000 cryst.\nЭто только для теста!")) {
+            localStorage.removeItem('betsHistory');
+            localStorage.setItem('crystals', '1000');
+            alert('✅ Всё сброшено!');
+            window.location.reload();
         }
     };
 
@@ -30,6 +39,14 @@ export function SavingInfo() {
                     <button onClick={() => buyCrystals(2000, 0.9)} className="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm">+2000 cryst<br/><span className="text-emerald-400">≈0.9 TON</span></button>
                 </div>
             </div>
+
+            {/* Временная кнопка сброса — только для теста */}
+            <button 
+                onClick={resetAllData}
+                className="mt-8 mx-auto block text-xs text-gray-500 hover:text-red-400 underline"
+            >
+                🔧 Сбросить тестовые данные (только для разработки)
+            </button>
 
             <p className="text-center text-gray-500 text-xs mt-8">
                 Купить кристаллики: TON • Telegram Stars • Задания
