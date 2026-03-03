@@ -5,6 +5,7 @@ import { Home } from './pages/Home';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Plan } from './pages/Plan';
+import { Tournaments } from './pages/Tournaments';
 
 function App() {
 
@@ -18,7 +19,7 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/tournaments" element={<div className="p-4 text-center text-2xl text-white">Турниры скоро появятся 🔥</div>} />
+            <Route path="/tournaments" element={<Tournaments />} />
             <Route path="/mybets" element={<div className="p-4 text-center text-2xl text-white">Мои ставки</div>} />
             <Route path="/wallet" element={<div className="p-4 text-center text-2xl text-white">Кошелёк (баланс TON + вывод)</div>} />
             <Route path="/plan" element={<Plan />} />
