@@ -7,7 +7,6 @@ import { useCrystals } from '../hooks/useCrystals';
 export const Home: React.FC = () => {
   const { haptic } = useTelegram();
   const navigate = useNavigate();
-  const crystals = 1240; // потом будет из состояния
   const { crystals } = useCrystals();
 
   return (
