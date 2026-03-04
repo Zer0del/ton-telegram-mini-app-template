@@ -28,7 +28,7 @@ function App() {
               <Route 
   path="/admin" 
   element={
-    localStorage.getItem('tgUserId') === '636499517' // ← ← ← вставь свой реальный Telegram ID
+    localStorage.getItem('tgUserId') === 636499517 // ← ← ← вставь свой реальный Telegram ID
       ? <Admin /> 
       : <div className="p-8 text-center text-red-400">Доступ запрещён</div>
   } 
