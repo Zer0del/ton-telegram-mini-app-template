@@ -26,18 +26,9 @@ function App() {
               <Route path="/mybets" element={<MyBets />} />
               <Route path="/wallet" element={<div className="p-4 text-center text-2xl text-white">Кошелёк</div>} />
               <Route 
-                path="/admin" 
-                element={
-                  localStorage.getItem('tgUserId') === ADMIN_TG_ID
-                    ? <Admin /> 
-                    : <div className="p-8 text-center text-red-400 text-xl font-bold">
-                        Доступ запрещён<br />
-                        <span className="text-base text-gray-500 mt-2 block">
-                          Это админ-панель — только для владельца
-                        </span>
-                      </div>
-                } 
-              />
+  path="/admin" 
+  element={<Admin />} 
+/>
             </Routes>
           </main>
 
