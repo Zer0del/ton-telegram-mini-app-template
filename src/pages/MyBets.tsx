@@ -12,9 +12,9 @@ export const MyBets: React.FC = () => {
   const launchConfetti = () => {
     for (let i = 0; i < 150; i++) {
       const c = document.createElement('div');
-      c.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-10px;width:8px;height:8px;background:hsl(${Math.random()*360},100%,70%);border-radius:50%;z-index:9999;pointer-events:none;`;
+      c.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-10px;width:8px;height:8px;background:hsl(${Math.random()*360},100%,70%);border-radius:50%;z-index:9999;`;
       document.body.appendChild(c);
-      c.animate([{ transform: 'translateY(0) rotate(0)', opacity: 1 }, { transform: `translateY(${window.innerHeight+100}px) rotate(${Math.random()*720}deg)`, opacity: 0 }], { duration: 2500, easing: 'cubic-bezier(0.25,0.1,0.25,1)' }).onfinish = () => c.remove();
+      c.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: `translateY(${window.innerHeight+100}px) rotate(${Math.random()*720}deg)`, opacity: 0 }], { duration: 2500 }).onfinish = () => c.remove();
     }
   };
 
@@ -29,15 +29,14 @@ export const MyBets: React.FC = () => {
       {predictions.length === 0 ? (
         <div className="text-center py-20 opacity-60">
           Пока нет предиктов<br />
-          <button onClick={() => navigate('/tournaments')} className="mt-6 px-8 py-4 bg-[#00ff9d] text-black rounded-2xl font-bold">Сделать первый предикт</button>
+          <button onClick={() => navigate('/tournaments')} className="mt-6 px-8 py-4 bg-[#00ff9d] text-black rounded-2xl font-bold">Сделать первый</button>
         </div>
       ) : (
         <div className="space-y-6">
           {predictions.map((p, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="bg-[#121a2e] rounded-3xl p-6 glow-green">
+            <motion.div key={i} className="bg-[#121a2e] rounded-3xl p-6 glow-green">
               <div className="font-bold text-xl mb-1">{p.tournament}</div>
               <div className="text-[#8ba7c9]">Режим: {p.mode} • Банк: {p.bank} 💎</div>
-              
               <div className="my-5 space-y-2">
                 {p.order.map((team: string, idx: number) => (
                   <div key={idx} className="bg-[#1e2a4a] px-5 py-3 rounded-2xl flex items-center gap-3">
@@ -45,7 +44,6 @@ export const MyBets: React.FC = () => {
                   </div>
                 ))}
               </div>
-
               <div className={`text-center font-bold py-2 rounded-2xl ${p.status === 'Выиграл' ? 'bg-green-600' : 'bg-yellow-500 text-black'}`}>
                 {p.status}
               </div>
