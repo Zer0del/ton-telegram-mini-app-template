@@ -1,13 +1,10 @@
-
-### 3. src/main.tsx (замени полностью)
-```tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { TelegramProvider } from './hooks/useTelegram.ts'; // новый хук ниже
+import { TelegramProvider } from './hooks/useTelegram';
 
 const manifestUrl = new URL('./tonconnect-manifest.json', import.meta.url).toString();
 
