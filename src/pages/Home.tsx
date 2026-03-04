@@ -1,28 +1,69 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { useTelegram } from '../hooks/useTelegram';
+import { useNavigate } from 'react-router-dom';
 
-import { BasicInfo } from '../components/BasicInfo';
-import { Footer } from '../components/Footer';
-import { SavingInfo } from '../components/SavingInfo';
+export const Home: React.FC = () => {
+  const { haptic } = useTelegram();
+  const navigate = useNavigate();
+  const crystals = 1240; // потом будет из состояния
 
-export function Home() {
+  return (
+    <div className="p-5 pb-24 min-h-screen">
+      {/* Баланс кристаликов */}
+      <motion.div 
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-[#121a2e] rounded-3xl p-6 glow-green text-center mb-8"
+      >
+        <div className="flex items-center justify-center gap-3">
+          <span className="text-5xl">💎</span>
+          <div>
+            <div className="text-4xl font-bold text-[#00ff9d]">{crystals}</div>
+            <div className="text-[#8ba7c9] -mt-1">Кристалики</div>
+          </div>
+        </div>
+      </motion.div>
 
-    return (
+      {/* Быстрые действия */}
+      <div className="grid grid-cols-2 gap-4 mb-10">
+        <motion.button 
+          whileTap={{ scale: 0.95 }}
+          onClick={() => { haptic('medium'); alert('Покупка за Stars/TON (позже интеграция)'); }}
+          className="neon-btn bg-gradient-to-r from-[#00ff9d] to-[#00eaff] text-black font-bold py-6 rounded-3xl glow-green"
+        >
+          Купить кристалики
+        </motion.button>
 
-        <>
-            <div className="flex-grow bg-[#f7f8f8]  relative top-glow z-0">
+        <motion.button 
+          whileTap={{ scale: 0.95 }}
+          onClick={() => { haptic('medium'); navigate('/tournaments'); }}
+          className="neon-btn border-2 border-[#00ff9d] text-[#00ff9d] font-bold py-6 rounded-3xl"
+        >
+          Сделать предикт
+        </motion.button>
+      </div>
 
-                {/* <div className="absolute top-[2px] left-0 right-0 bottom-0 bg-gradient-to-t from-cyan-500 to-blue-500"> */}
-                <div className="absolute top-[2px] left-0 right-0 bottom-0 " >
-
-                    <BasicInfo />
-                    <SavingInfo />
-
-                </div>
-
-
-            </div>
-
-            <Footer />
-        </>
-    );
-
-}
+      {/* Задания для бесплатных кристаликов */}
+      <h2 className="text-xl font-bold mb-4 text-[#00eaff]">Задания за кристалики</h2>
+      <div className="space-y-3">
+        {[
+          "Поделись приложением с другом (+50 💎)",
+          "Пригласи 3 друзей (+200 💎)",
+          "Поставь предикт на 3 турнира (+100 💎)"
+        ].map((task, i) => (
+          <motion.div 
+            key={i}
+            initial={{ x: -50 }}
+            animate={{ x: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-[#121a2e] p-5 rounded-2xl flex justify-between items-center"
+          >
+            <div>{task}</div>
+            <button className="px-6 py-2 bg-[#00ff9d] text-black rounded-xl text-sm font-bold">Получить</button>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
