@@ -4,17 +4,20 @@ import { Home } from './pages/Home';
 import { Tournaments } from './pages/Tournaments';
 import { MyBets } from './pages/MyBets';
 import { Admin } from './pages/Admin';
+import { Footer } from './components/Footer';
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-[var(--tg-theme-bg-color)] text-[var(--tg-theme-text-color)]">
+      <div className="min-h-screen bg-[var(--tg-theme-bg-color)] text-[var(--tg-theme-text-color)] pb-20">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/tournaments" element={<Tournaments />} />
           <Route path="/my-bets" element={<MyBets />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
+        
+        <Footer />
       </div>
     </BrowserRouter>
   );
