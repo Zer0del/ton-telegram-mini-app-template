@@ -1,36 +1,50 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { FaHome, FaTrophy, FaList, FaWallet, FaLock } from "react-icons/fa";
 
 export function Footer() {
   return (
-    <div>
-      <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-zinc-950 border-t border-zinc-800 flex justify-around items-center z-50 text-xs py-1">
+    <div className="fixed bottom-0 left-0 right-0 bg-[var(--tg-theme-bg-color)] border-t border-[var(--tg-theme-secondary-bg-color)] z-50 pb-[env(safe-area-inset-bottom)]">
+      <div className="flex justify-around items-center py-2 max-w-2xl mx-auto">
         
-        <Link to="/" className="text-center text-gray-400 hover:text-white flex flex-col items-center py-1 px-3">
+        <NavLink 
+          to="/" 
+          className={({ isActive }) => `flex flex-col items-center text-xs ${isActive ? 'text-blue-500' : 'text-[var(--tg-theme-hint-color)]'}`}
+        >
           <FaHome size={24} />
-          <p className="mt-0.5 text-[10px]">Главная</p>
-        </Link>
+          Главная
+        </NavLink>
 
-        <Link to="/tournaments" className="text-center text-gray-400 hover:text-white flex flex-col items-center py-1 px-3">
+        <NavLink 
+          to="/tournaments" 
+          className={({ isActive }) => `flex flex-col items-center text-xs ${isActive ? 'text-blue-500' : 'text-[var(--tg-theme-hint-color)]'}`}
+        >
           <FaTrophy size={24} />
-          <p className="mt-0.5 text-[10px]">Турниры</p>
-        </Link>
+          Турниры
+        </NavLink>
 
-        <Link to="/mybets" className="text-center text-gray-400 hover:text-white flex flex-col items-center py-1 px-3">
+        <NavLink 
+          to="/my-bets" 
+          className={({ isActive }) => `flex flex-col items-center text-xs ${isActive ? 'text-blue-500' : 'text-[var(--tg-theme-hint-color)]'}`}
+        >
           <FaList size={24} />
-          <p className="mt-0.5 text-[10px]">Мои ставки</p>
-        </Link>
+          Ставки
+        </NavLink>
 
-        <Link to="/wallet" className="text-center text-emerald-400 hover:text-white flex flex-col items-center py-1 px-3">
+        <NavLink 
+          to="/wallet" 
+          className={({ isActive }) => `flex flex-col items-center text-xs ${isActive ? 'text-blue-500' : 'text-[var(--tg-theme-hint-color)]'}`}
+        >
           <FaWallet size={24} />
-          <p className="mt-0.5 text-[10px]">Кошелёк</p>
-        </Link>
+          Кошелёк
+        </NavLink>
 
-        {/* Секретная админка */}
-        <Link to="/admin" className="text-center text-gray-600 hover:text-red-400 flex flex-col items-center py-1 px-3">
+        <NavLink 
+          to="/admin" 
+          className={({ isActive }) => `flex flex-col items-center text-xs ${isActive ? 'text-blue-500' : 'text-[var(--tg-theme-hint-color)]'}`}
+        >
           <FaLock size={24} />
-          <p className="mt-0.5 text-[10px]">Админ</p>
-        </Link>
+          Админ
+        </NavLink>
       </div>
     </div>
   );
