@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useLocalStorage } from 'use-local-storage';
 import { useNavigate } from 'react-router-dom';
 import { useTelegram } from '../hooks/useTelegram';
 
 export const MyBets: React.FC = () => {
   const { haptic } = useTelegram();
   const navigate = useNavigate();
-  const [predictions] = useLocalStorage<any[]>('cs2_predictions', []);
+  const [predictions, setPredictions] = useState<any[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('cs2_predictions');
+    if (saved) setPredictions(JSON.parse(saved));
+  }, []);
 
   const launchConfetti = () => {
     for (let i = 0; i < 150; i++) {
