@@ -7,7 +7,20 @@ const tournamentsData = [
     prize: "$1 100 000",
     status: "LIVE",
     color: "bg-red-500",
-    teams: ["Vitality", "Team Spirit", "NaVi", "G2 Esports", "Team Liquid", "FaZe Clan", "MOUZ", "Astralis", "BIG", "3DMAX", "Eternal Fire", "HEROIC"]
+    teams: [
+      { name: "Vitality", logo: "https://liquipedia.net/commons/images/thumb/2/2f/Vitality_CS2_2024.png/300px-Vitality_CS2_2024.png" },
+      { name: "Team Spirit", logo: "https://liquipedia.net/commons/images/thumb/0/0a/Team_Spirit_2024.png/300px-Team_Spirit_2024.png" },
+      { name: "NaVi", logo: "https://liquipedia.net/commons/images/thumb/5/5a/Natus_Vincere_2024.png/300px-Natus_Vincere_2024.png" },
+      { name: "G2 Esports", logo: "https://liquipedia.net/commons/images/thumb/3/3f/G2_Esports_2024.png/300px-G2_Esports_2024.png" },
+      { name: "Team Liquid", logo: "https://liquipedia.net/commons/images/thumb/0/0f/Team_Liquid_2024.png/300px-Team_Liquid_2024.png" },
+      { name: "FaZe Clan", logo: "https://liquipedia.net/commons/images/thumb/4/4f/FaZe_Clan_2024.png/300px-FaZe_Clan_2024.png" },
+      { name: "MOUZ", logo: "https://liquipedia.net/commons/images/thumb/1/1f/MOUZ_2024.png/300px-MOUZ_2024.png" },
+      { name: "Astralis", logo: "https://liquipedia.net/commons/images/thumb/8/8f/Astralis_2024.png/300px-Astralis_2024.png" },
+      { name: "BIG", logo: "https://liquipedia.net/commons/images/thumb/7/7f/BIG_2024.png/300px-BIG_2024.png" },
+      { name: "3DMAX", logo: "https://liquipedia.net/commons/images/thumb/5/5f/3DMAX_2024.png/300px-3DMAX_2024.png" },
+      { name: "Eternal Fire", logo: "https://liquipedia.net/commons/images/thumb/9/9f/Eternal_Fire_2024.png/300px-Eternal_Fire_2024.png" },
+      { name: "HEROIC", logo: "https://liquipedia.net/commons/images/thumb/2/2f/HEROIC_2024.png/300px-HEROIC_2024.png" }
+    ]
   },
   {
     name: "ESL Pro League Season 23 Finals",
@@ -15,7 +28,20 @@ const tournamentsData = [
     prize: "$275 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: ["Vitality", "Team Spirit", "NaVi", "G2 Esports", "Team Liquid", "FaZe Clan", "MOUZ", "Astralis", "BIG", "3DMAX", "Eternal Fire", "HEROIC"]
+    teams: [
+      { name: "Vitality", logo: "https://liquipedia.net/commons/images/thumb/2/2f/Vitality_CS2_2024.png/300px-Vitality_CS2_2024.png" },
+      { name: "Team Spirit", logo: "https://liquipedia.net/commons/images/thumb/0/0a/Team_Spirit_2024.png/300px-Team_Spirit_2024.png" },
+      { name: "NaVi", logo: "https://liquipedia.net/commons/images/thumb/5/5a/Natus_Vincere_2024.png/300px-Natus_Vincere_2024.png" },
+      { name: "G2 Esports", logo: "https://liquipedia.net/commons/images/thumb/3/3f/G2_Esports_2024.png/300px-G2_Esports_2024.png" },
+      { name: "Team Liquid", logo: "https://liquipedia.net/commons/images/thumb/0/0f/Team_Liquid_2024.png/300px-Team_Liquid_2024.png" },
+      { name: "FaZe Clan", logo: "https://liquipedia.net/commons/images/thumb/4/4f/FaZe_Clan_2024.png/300px-FaZe_Clan_2024.png" },
+      { name: "MOUZ", logo: "https://liquipedia.net/commons/images/thumb/1/1f/MOUZ_2024.png/300px-MOUZ_2024.png" },
+      { name: "Astralis", logo: "https://liquipedia.net/commons/images/thumb/8/8f/Astralis_2024.png/300px-Astralis_2024.png" },
+      { name: "BIG", logo: "https://liquipedia.net/commons/images/thumb/7/7f/BIG_2024.png/300px-BIG_2024.png" },
+      { name: "3DMAX", logo: "https://liquipedia.net/commons/images/thumb/5/5f/3DMAX_2024.png/300px-3DMAX_2024.png" },
+      { name: "Eternal Fire", logo: "https://liquipedia.net/commons/images/thumb/9/9f/Eternal_Fire_2024.png/300px-Eternal_Fire_2024.png" },
+      { name: "HEROIC", logo: "https://liquipedia.net/commons/images/thumb/2/2f/HEROIC_2024.png/300px-HEROIC_2024.png" }
+    ]
   },
   {
     name: "PGL Bucharest 2026",
@@ -23,7 +49,20 @@ const tournamentsData = [
     prize: "$1 250 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: ["Vitality", "Team Spirit", "NaVi", "G2 Esports", "Team Liquid", "FaZe Clan", "MOUZ", "Astralis", "BIG", "3DMAX", "Eternal Fire", "HEROIC"]
+    teams: [
+      { name: "Vitality", logo: "https://liquipedia.net/commons/images/thumb/2/2f/Vitality_CS2_2024.png/300px-Vitality_CS2_2024.png" },
+      { name: "Team Spirit", logo: "https://liquipedia.net/commons/images/thumb/0/0a/Team_Spirit_2024.png/300px-Team_Spirit_2024.png" },
+      { name: "NaVi", logo: "https://liquipedia.net/commons/images/thumb/5/5a/Natus_Vincere_2024.png/300px-Natus_Vincere_2024.png" },
+      { name: "G2 Esports", logo: "https://liquipedia.net/commons/images/thumb/3/3f/G2_Esports_2024.png/300px-G2_Esports_2024.png" },
+      { name: "Team Liquid", logo: "https://liquipedia.net/commons/images/thumb/0/0f/Team_Liquid_2024.png/300px-Team_Liquid_2024.png" },
+      { name: "FaZe Clan", logo: "https://liquipedia.net/commons/images/thumb/4/4f/FaZe_Clan_2024.png/300px-FaZe_Clan_2024.png" },
+      { name: "MOUZ", logo: "https://liquipedia.net/commons/images/thumb/1/1f/MOUZ_2024.png/300px-MOUZ_2024.png" },
+      { name: "Astralis", logo: "https://liquipedia.net/commons/images/thumb/8/8f/Astralis_2024.png/300px-Astralis_2024.png" },
+      { name: "BIG", logo: "https://liquipedia.net/commons/images/thumb/7/7f/BIG_2024.png/300px-BIG_2024.png" },
+      { name: "3DMAX", logo: "https://liquipedia.net/commons/images/thumb/5/5f/3DMAX_2024.png/300px-3DMAX_2024.png" },
+      { name: "Eternal Fire", logo: "https://liquipedia.net/commons/images/thumb/9/9f/Eternal_Fire_2024.png/300px-Eternal_Fire_2024.png" },
+      { name: "HEROIC", logo: "https://liquipedia.net/commons/images/thumb/2/2f/HEROIC_2024.png/300px-HEROIC_2024.png" }
+    ]
   }
 ];
 
@@ -158,7 +197,7 @@ export function Tournaments() {
         </div>
       ))}
 
-      {/* Модалка предикта (без изменений) */}
+      {/* Модалка предикта с логотипами */}
       {showBetModal && currentTournamentData && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-zinc-900 rounded-3xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -182,10 +221,15 @@ export function Tournaments() {
               <p className="uppercase text-xs text-gray-400 mb-3 tracking-widest">КОМАНДЫ ТУРНИРА</p>
               <div className="grid grid-cols-2 gap-2 max-h-80 overflow-y-auto">
                 {currentTournamentData.teams
-                  .filter(team => !prediction.includes(team))
+                  .filter(team => !prediction.includes(team.name))
                   .map(team => (
-                    <button key={team} onClick={() => addTeam(team)} className="bg-zinc-800 hover:bg-zinc-700 py-3.5 rounded-2xl text-sm font-medium transition-colors">
-                      {team}
+                    <button 
+                      key={team.name} 
+                      onClick={() => addTeam(team.name)}
+                      className="bg-zinc-800 hover:bg-zinc-700 p-3 rounded-2xl flex items-center gap-3 transition-colors"
+                    >
+                      <img src={team.logo} alt={team.name} className="w-8 h-8 object-contain rounded" />
+                      <span className="font-medium text-sm">{team.name}</span>
                     </button>
                   ))}
               </div>
