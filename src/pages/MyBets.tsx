@@ -12,7 +12,7 @@ export const MyBets: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="p-4">
+    <div className="p-4 pb-24"> {/* pb-24 чтобы не залезало под меню */}
       <h1 className="text-2xl font-bold mb-6 text-center">История ставок</h1>
       
       <div className="space-y-4">
@@ -24,13 +24,13 @@ export const MyBets: React.FC = () => {
             transition={{ delay: i * 0.05 }}
             className="bg-[var(--tg-theme-secondary-bg-color)] rounded-3xl p-6"
           >
-            <div className="flex justify-between mb-4">
+            <div className="flex justify-between mb-3">
               <div>
-                <div className="font-bold">{bet.match}</div>
+                <div className="font-bold text-lg">{bet.match}</div>
                 <div className="text-sm opacity-70">{bet.bet}</div>
               </div>
-              <div className={`px-4 py-1 rounded-full text-xs font-bold ${bet.status === 'win' ? 'bg-green-600' : 'bg-red-600'}`}>
-                {bet.status === 'win' ? '✅ + ' + bet.win : '❌'}
+              <div className={`px-4 py-1 rounded-full text-xs font-bold ${bet.status === 'win' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                {bet.status === 'win' ? `+${bet.win} TON` : 'Проигрыш'}
               </div>
             </div>
             <div className="text-sm">Ставка: {bet.amount} TON</div>
@@ -40,9 +40,9 @@ export const MyBets: React.FC = () => {
 
       <button 
         onClick={() => navigate('/tournaments')}
-        className="mt-8 w-full py-4 bg-blue-600 rounded-2xl font-bold"
+        className="mt-8 w-full py-4 bg-blue-600 rounded-2xl font-bold text-lg"
       >
-        Сделать новую ставку
+        Сделать новую ставку →
       </button>
     </div>
   );
