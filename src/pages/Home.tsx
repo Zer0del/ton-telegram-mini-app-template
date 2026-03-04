@@ -2,11 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
 import { useNavigate } from 'react-router-dom';
+import { useCrystals } from '../hooks/useCrystals';
 
 export const Home: React.FC = () => {
   const { haptic } = useTelegram();
   const navigate = useNavigate();
   const crystals = 1240; // потом будет из состояния
+  const { crystals } = useCrystals();
 
   return (
     <div className="p-5 pb-24 min-h-screen">
