@@ -7,10 +7,10 @@ import { MyBets } from './pages/MyBets';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { Admin } from './pages/Admin'; // новый импорт
+import { Admin } from './pages/Admin';
 
-// Твой Telegram ID (замени на свой реальный — посмотри в консоли после подключения кошелька)
-const ADMIN_TG_ID = '636499517'; // ← ← ← ПОМЕНЯЙ НА СВОЙ ID
+// Твой Telegram ID (строка, потому что localStorage хранит строки)
+const ADMIN_TG_ID = '636499517';
 
 function App() {
   return (
@@ -26,13 +26,18 @@ function App() {
               <Route path="/mybets" element={<MyBets />} />
               <Route path="/wallet" element={<div className="p-4 text-center text-2xl text-white">Кошелёк</div>} />
               <Route 
-  path="/admin" 
-  element={
-    localStorage.getItem('tgUserId') === '636499517' // ← ← ← вставь свой реальный Telegram ID
-      ? <Admin /> 
-      : <div className="p-8 text-center text-red-400">Доступ запрещён</div>
-  } 
-/>
+                path="/admin" 
+                element={
+                  localStorage.getItem('tgUserId') === ADMIN_TG_ID
+                    ? <Admin /> 
+                    : <div className="p-8 text-center text-red-400 text-xl font-bold">
+                        Доступ запрещён<br />
+                        <span className="text-base text-gray-500 mt-2 block">
+                          Это админ-панель — только для владельца
+                        </span>
+                      </div>
+                } 
+              />
             </Routes>
           </main>
 
