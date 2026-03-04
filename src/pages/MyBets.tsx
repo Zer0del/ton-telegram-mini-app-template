@@ -1,59 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Confetti from 'react-confetti'; // Добавь в deps: npm i react-confetti
 import { useLocalStorage } from 'use-local-storage';
 import { useNavigate } from 'react-router-dom';
+import { useTelegram } from '../hooks/useTelegram';
 
 export const MyBets: React.FC = () => {
+  const { haptic } = useTelegram();
   const navigate = useNavigate();
   const [predictions] = useLocalStorage<any[]>('cs2_predictions', []);
-  const [showConfetti, setShowConfetti] = useState(false);
+
+  const launchConfetti = () => {
+    for (let i = 0; i < 150; i++) {
+      const c = document.createElement('div');
+      c.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-10px;width:8px;height:8px;background:hsl(${Math.random()*360},100%,70%);border-radius:50%;z-index:9999;pointer-events:none;`;
+      document.body.appendChild(c);
+      c.animate([{ transform: 'translateY(0) rotate(0)', opacity: 1 }, { transform: `translateY(${window.innerHeight+100}px) rotate(${Math.random()*720}deg)`, opacity: 0 }], { duration: 2500, easing: 'cubic-bezier(0.25,0.1,0.25,1)' }).onfinish = () => c.remove();
+    }
+  };
 
   useEffect(() => {
-    // Mock: если угадал — confetti
-    if (predictions.some(p => p.status === 'Выиграл')) {
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 5000);
-    }
+    if (predictions.some(p => p.status === 'Выиграл')) launchConfetti();
   }, [predictions]);
 
   return (
     <div className="p-5 pb-24">
-      {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} />}
-
       <h1 className="text-3xl font-bold mb-8 text-center text-[#00eaff]">Мои предикты</h1>
 
       {predictions.length === 0 ? (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-20 opacity-60"
-        >
-          Пока нет предиктов. <br />
-          <button onClick={() => navigate('/tournaments')} className="mt-4 px-6 py-3 bg-[#00ff9d] text-black rounded-xl font-bold">Сделать первый!</button>
-        </motion.div>
+        <div className="text-center py-20 opacity-60">
+          Пока нет предиктов<br />
+          <button onClick={() => navigate('/tournaments')} className="mt-6 px-8 py-4 bg-[#00ff9d] text-black rounded-2xl font-bold">Сделать первый предикт</button>
+        </div>
       ) : (
         <div className="space-y-6">
-          {predictions.map((pred, index) => (
-            <motion.div 
-              key={index}
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-[#121a2e] rounded-3xl p-6 glow-green"
-            >
-              <div className="font-bold text-xl mb-2">{pred.tournament}</div>
-              <div className="text-[#8ba7c9] mb-4">Режим: {pred.mode} • Банк: {pred.bank} 💎</div>
-              <div className="text-sm mb-3">Твой прогноз:</div>
-              <div className="space-y-2">
-                {pred.order.map((team: string, i: number) => (
-                  <div key={i} className="bg-[#1e2a4a] p-3 rounded-xl flex items-center gap-2">
-                    <span className="font-bold text-[#00ff9d]">{i + 1} место:</span> {team}
+          {predictions.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="bg-[#121a2e] rounded-3xl p-6 glow-green">
+              <div className="font-bold text-xl mb-1">{p.tournament}</div>
+              <div className="text-[#8ba7c9]">Режим: {p.mode} • Банк: {p.bank} 💎</div>
+              
+              <div className="my-5 space-y-2">
+                {p.order.map((team: string, idx: number) => (
+                  <div key={idx} className="bg-[#1e2a4a] px-5 py-3 rounded-2xl flex items-center gap-3">
+                    <span className="text-[#00ff9d] font-bold w-6">{idx + 1}.</span> {team}
                   </div>
                 ))}
               </div>
-              <div className={`mt-4 text-center font-bold ${pred.status === 'Выиграл' ? 'text-[#00ff9d]' : 'text-yellow-400'}`}>
-                Статус: {pred.status}
+
+              <div className={`text-center font-bold py-2 rounded-2xl ${p.status === 'Выиграл' ? 'bg-green-600' : 'bg-yellow-500 text-black'}`}>
+                {p.status}
               </div>
             </motion.div>
           ))}
