@@ -12,14 +12,14 @@ html, body, #root {
   background-color: #0f0f0f;
 }
 
-/* Безопасные отступы под notch и клавиатуру */
+/* Усиленные безопасные отступы под notch + нижнюю навигацию Telegram */
 .safe-area {
   padding-top: max(env(safe-area-inset-top), 12px);
-  padding-bottom: max(env(safe-area-inset-bottom), 20px);
+  padding-bottom: max(env(safe-area-inset-bottom), 80px);
 }
 
-/* Основной контент с запасом под нижнюю панель */
+/* Увеличенный запас под навигацию (было 100px → теперь 140px + pb-40) */
 .main-content {
-  padding-bottom: 100px;
+  padding-bottom: 140px;
   overflow-y: auto;
 }
