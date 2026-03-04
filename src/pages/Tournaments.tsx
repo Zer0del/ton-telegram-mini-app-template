@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const tournamentsData = [
   {
@@ -22,14 +22,13 @@ const tournamentsData = [
       { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
     ]
   },
-  // (остальные турниры оставлены как были — я не трогал)
   {
     name: "ESL Pro League Season 23 Finals",
     date: "13–15 марта",
     prize: "$275 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: [ /* ... тот же массив ... */ ]
+    teams: [] // можешь заполнить позже
   },
   {
     name: "PGL Bucharest 2026",
@@ -37,7 +36,7 @@ const tournamentsData = [
     prize: "$1 250 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: [ /* ... тот же массив ... */ ]
+    teams: [] // можешь заполнить позже
   }
 ];
 
@@ -63,7 +62,7 @@ export function Tournaments() {
     setShowBetModal(true);
   };
 
-  const getPoolAmount = (tournament: string, mode: string) => 1000;
+  const getPoolAmount = () => 1000;
 
   const currentTournamentData = tournamentsData.find(t => t.name === currentTournament);
 
@@ -89,34 +88,32 @@ export function Tournaments() {
             <div className="bg-zinc-900 p-4 rounded-2xl">
               <p className="text-gray-300">{t.date} • {t.prize}</p>
               <p className="text-sm text-gray-400 mt-1">{t.status}</p>
-              {['Top-1', 'Top-3', 'Top-5'].map((mode, idx) => {
-                const bank = getPoolAmount(t.name, mode);
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => openBetModal(t.name, mode)}
-                    className="w-full bg-zinc-800 hover:bg-zinc-700 py-7 rounded-3xl transition-all active:scale-[0.97] mt-3"
-                  >
-                    {mode} • Банк: {bank}
-                  </button>
-                );
-              })}
+              {['Top-1', 'Top-3', 'Top-5'].map((mode, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => openBetModal(t.name, mode)}
+                  className="w-full bg-zinc-800 hover:bg-zinc-700 py-7 rounded-3xl transition-all active:scale-[0.97] mt-3"
+                >
+                  {mode} • Банк: {getPoolAmount()}
+                </button>
+              ))}
             </div>
           </div>
         ))}
 
-        {/* ИСПРАВЛЕННАЯ МОДАЛКА — теперь не обрезается и скроллится */}
+        {/* ИСПРАВЛЕННАЯ МОДАЛКА — кнопки больше НЕ обрезаются */}
         {showBetModal && currentTournamentData && (
           <div className="fixed inset-0 bg-black/95 z-50 flex items-end safe-area overflow-hidden">
-            <div className="bg-[#171717] w-full max-h-[94vh] rounded-t-3xl overflow-hidden flex flex-col">
+            <div className="bg-[#171717] w-full max-h-[88vh] rounded-t-3xl overflow-hidden flex flex-col">
+              
               {/* Заголовок */}
               <div className="p-5 border-b border-zinc-800 text-center">
                 <h2 className="text-2xl font-bold text-white">Составь свой {currentMode}</h2>
                 <p className="text-zinc-400 mt-1">{currentTournament}</p>
               </div>
 
-              {/* Скролл + выбор команд */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-6 main-content">
+              {/* Скролл с большим запасом снизу */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-6 main-content pb-40">
                 <h3 className="text-green-400 font-semibold text-lg">МОЙ ТОП {currentMode.replace('Top-', '')}</h3>
                 <div className="space-y-3">
                   {Array.from({ length: parseInt(currentMode.replace('Top-', '')) }).map((_, i) => (
@@ -151,15 +148,18 @@ export function Tournaments() {
                 </div>
               </div>
 
-              {/* Кнопки снизу */}
-              <div className="p-4 border-t border-zinc-800 flex gap-3 bg-[#171717]">
+              {/* Кнопки снизу — теперь с запасом под навигацию */}
+              <div className="p-4 border-t border-zinc-800 flex gap-3 bg-[#171717] pb-8">
                 <button 
                   onClick={() => setShowBetModal(false)} 
                   className="flex-1 py-4 bg-red-500 rounded-2xl text-lg font-medium"
                 >
                   Отмена
                 </button>
-                <button className="flex-1 py-4 bg-green-500 rounded-2xl text-lg font-medium text-black">
+                <button 
+                  onClick={() => { /* сюда позже добавим сохранение ставки */ alert('Ставка 100 кристаликов принята!'); setShowBetModal(false); }}
+                  className="flex-1 py-4 bg-green-500 rounded-2xl text-lg font-medium text-black"
+                >
                   Подтвердить
                 </button>
               </div>
