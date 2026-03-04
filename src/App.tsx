@@ -26,14 +26,13 @@ function App() {
               <Route path="/mybets" element={<MyBets />} />
               <Route path="/wallet" element={<div className="p-4 text-center text-2xl text-white">Кошелёк</div>} />
               <Route 
-                path="/admin" 
-                element={
-                  // Защита — только ты видишь
-                  localStorage.getItem('tgUserId') === ADMIN_TG_ID 
-                    ? <Admin /> 
-                    : <div className="p-8 text-center text-red-400">Доступ запрещён</div>
-                } 
-              />
+  path="/admin" 
+  element={
+    localStorage.getItem('tgUserId') === '636499517' // ← ← ← вставь свой реальный Telegram ID
+      ? <Admin /> 
+      : <div className="p-8 text-center text-red-400">Доступ запрещён</div>
+  } 
+/>
             </Routes>
           </main>
 
