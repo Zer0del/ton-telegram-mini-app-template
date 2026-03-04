@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
-import { useLocalStorage } from 'use-local-storage';
 import { useNavigate } from 'react-router-dom';
 
 const tournaments = [
@@ -9,18 +8,29 @@ const tournaments = [
 ];
 
 const modes = [
-  { name: "Топ-5", places: 5, cost: 100 },
-  { name: "Топ-3", places: 3, cost: 100 },
-  { name: "Топ-1", places: 1, cost: 100 },
+  { name: "Топ-5", places: 5 },
+  { name: "Топ-3", places: 3 },
+  { name: "Топ-1", places: 1 },
 ];
 
 export const Tournaments: React.FC = () => {
   const { haptic } = useTelegram();
   const navigate = useNavigate();
-  const [predictions, setPredictions] = useLocalStorage<any[]>('cs2_predictions', []);
+  const [predictions, setPredictions] = useState<any[]>([]);
   const [selectedMode, setSelectedMode] = useState<any>(null);
   const [selectedTournament, setSelectedTournament] = useState<any>(null);
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
+
+  // Загружаем предикты из localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('cs2_predictions');
+    if (saved) setPredictions(JSON.parse(saved));
+  }, []);
+
+  const savePredictions = (newPreds: any[]) => {
+    localStorage.setItem('cs2_predictions', JSON.stringify(newPreds));
+    setPredictions(newPreds);
+  };
 
   const openModal = (t: any, m: any) => {
     haptic('medium');
@@ -36,7 +46,7 @@ export const Tournaments: React.FC = () => {
   };
 
   const confirmPrediction = () => {
-    if (selectedTeams.some(t => !t)) return alert('Выбери все места!');
+    if (selectedTeams.some(t => !t)) return alert('Выбери все команды!');
     haptic('heavy');
 
     const newPred = {
@@ -48,7 +58,7 @@ export const Tournaments: React.FC = () => {
       bank: Math.floor(Math.random() * 12000) + 3000,
     };
 
-    setPredictions([...predictions, newPred]);
+    savePredictions([...predictions, newPred]);
     setSelectedMode(null);
     navigate('/my-bets');
   };
@@ -57,7 +67,7 @@ export const Tournaments: React.FC = () => {
     <div className="p-5 pb-24">
       <h1 className="text-3xl font-bold mb-8 text-center text-[#00eaff]">Tier-1 Турниры CS2</h1>
 
-      {tournaments.map((t) => (
+      {tournaments.map(t => (
         <motion.div key={t.id} className="bg-[#121a2e] rounded-3xl p-6 mb-6 glow-blue">
           <div className="font-bold text-xl">{t.name}</div>
           <div className="text-[#8ba7c9] mb-5">{t.date} • Приз {t.prize}</div>
@@ -89,7 +99,7 @@ export const Tournaments: React.FC = () => {
                 <select 
                   value={selectedTeams[i]} 
                   onChange={e => handleTeamSelect(i, e.target.value)}
-                  className="w-full p-4 bg-[#1e2a4a] rounded-2xl"
+                  className="w-full p-4 bg-[#1e2a4a] rounded-2xl text-white"
                 >
                   <option value="">Выбери команду</option>
                   {selectedTournament.teams.map((team: string) => (
@@ -100,8 +110,8 @@ export const Tournaments: React.FC = () => {
             ))}
 
             <div className="flex gap-3 mt-8">
-              <button onClick={() => setSelectedMode(null)} className="flex-1 py-4 bg-red-600 rounded-2xl">Отмена</button>
-              <button onClick={confirmPrediction} className="flex-1 py-4 bg-[#00ff9d] text-black rounded-2xl font-bold">Подтвердить</button>
+              <button onClick={() => setSelectedMode(null)} className="flex-1 py-4 bg-red-600 rounded-2xl font-bold">Отмена</button>
+              <button onClick={confirmPrediction} className="flex-1 py-4 bg-[#00ff9d] text-black rounded-2xl font-bold">Подтвердить предикт</button>
             </div>
           </div>
         </div>
