@@ -8,9 +8,9 @@ const tournamentsData = [
     status: "LIVE",
     color: "bg-red-500",
     teams: [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "Vitality", logo: "https://img-cdn.hltv.org/teamlogo/yeXBldn9w8LZCgdElAenPs.png?ixlib=java-2.1.0&w=50&s=15eaba0b75250065d20162d2cb05e3e6" },
+      { name: "Team Spirit", logo: "https://img-cdn.hltv.org/teamlogo/ywdn4tmAvXfllLeV2SkkvF.png?ixlib=java-2.1.0&w=50&s=9c70c7fbb048348f70f686acd2369c58" },
+      { name: "NaVi", logo: "https://img-cdn.hltv.org/teamlogo/9iMirAi7ArBLNU8p3kqUTZ.svg?ixlib=java-2.1.0&s=4dd8635be16122656093ae9884675d0c" },
       { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
       { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
       { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
