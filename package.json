@@ -25,9 +25,7 @@
     "ton-core": "^0.46.0",
     "ton-crypto": "^3.2.0",
     "use-local-storage": "^2.3.6",
-    "vite-plugin-node-polyfills": "^0.22.0",
-    "react-beautiful-dnd": "^13.1.1",
-"react-confetti": "^6.1.0"
+    "vite-plugin-node-polyfills": "^0.22.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
