@@ -10,7 +10,7 @@ import { Footer } from './components/Footer';
 import { Admin } from './pages/Admin'; // новый импорт
 
 // Твой Telegram ID (замени на свой реальный — посмотри в консоли после подключения кошелька)
-const ADMIN_TG_ID = '123456789'; // ← ← ← ПОМЕНЯЙ НА СВОЙ ID
+const ADMIN_TG_ID = '636499517'; // ← ← ← ПОМЕНЯЙ НА СВОЙ ID
 
 function App() {
   return (
@@ -28,7 +28,7 @@ function App() {
               <Route 
   path="/admin" 
   element={
-    localStorage.getItem('tgUserId') === 636499517 // ← ← ← вставь свой реальный Telegram ID
+    localStorage.getItem('tgUserId') === '636499517' // ← ← ← вставь свой реальный Telegram ID
       ? <Admin /> 
       : <div className="p-8 text-center text-red-400">Доступ запрещён</div>
   } 
