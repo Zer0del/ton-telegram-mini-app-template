@@ -23,7 +23,7 @@ export function MyBets() {
       return;
     }
 
-    // Загружаем ставки пользователя из Supabase
+    // Загрузка всех ставок пользователя из Supabase
     supabase
       .from('bets')
       .select('*')
@@ -36,7 +36,7 @@ export function MyBets() {
   }, []);
 
   const resetAllBets = async () => {
-    if (!confirm('Ты уверен? Все ставки будут удалены.')) return;
+    if (!confirm('Ты уверен? Все ставки будут удалены безвозвратно.')) return;
 
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
@@ -48,7 +48,9 @@ export function MyBets() {
     }
   };
 
-  if (loading) return <div className="p-4 text-center">Загрузка ставок...</div>;
+  if (loading) {
+    return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
+  }
 
   return (
     <div className="p-4">
@@ -57,7 +59,7 @@ export function MyBets() {
         {bets.length > 0 && (
           <button
             onClick={resetAllBets}
-            className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium"
+            className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium transition-all"
           >
             Сбросить все
           </button>
