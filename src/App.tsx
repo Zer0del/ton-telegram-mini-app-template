@@ -8,20 +8,22 @@ import { MyBets } from './pages/MyBets';
 import { Wallet } from './pages/Wallet';
 import { Admin } from './pages/Admin';
 
-const ADMIN_TG_ID = '636499517'; // твой Telegram ID
-
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-black text-white pb-20">
+      <div className="min-h-screen bg-black text-white flex flex-col">
         <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/tournaments" element={<Tournaments />} />
-          <Route path="/my-bets" element={<MyBets />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/admin" element={<Admin />} />
-        </Routes>
+        
+        <main className="flex-1 main-content overflow-y-auto">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/tournaments" element={<Tournaments />} />
+            <Route path="/my-bets" element={<MyBets />} />
+            <Route path="/wallet" element={<Wallet />} />
+            <Route path="/admin" element={<Admin />} />
+          </Routes>
+        </main>
+
         <Footer />
       </div>
     </BrowserRouter>
