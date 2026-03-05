@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCrystals } from '../hooks/useCrystals';
 import { useBank } from '../hooks/useBank';
+import { supabase } from '../main';
 
 const tournamentsData = [
   {
@@ -86,19 +87,24 @@ export function Tournaments() {
 
   const { crystals, updateCrystals } = useCrystals();
 
-  // Общий банк турнира (обновляется у всех пользователей в реальном времени)
+  // Общий банк турнира (реалтайм для всех пользователей)
   const { bank, addToBank } = useBank(currentTournament, currentMode);
 
-  // Загрузка сохранённых ставок пользователя
+  // Загрузка ставок пользователя из Supabase
   useEffect(() => {
-    const saved = localStorage.getItem('userBets');
-    if (saved) setBets(JSON.parse(saved));
-  }, []);
+    const webApp = (window as any).Telegram?.WebApp;
+    const userId = webApp?.initDataUnsafe?.user?.id;
 
-  const saveBets = (newBets: Bet[]) => {
-    localStorage.setItem('userBets', JSON.stringify(newBets));
-    setBets(newBets);
-  };
+    if (userId) {
+      supabase
+        .from('bets')
+        .select('*')
+        .eq('telegram_id', userId)
+        .then(({ data }) => {
+          if (data) setBets(data);
+        });
+    }
+  }, []);
 
   const openBetModal = (tournament: string, mode: string) => {
     setCurrentTournament(tournament);
@@ -131,18 +137,27 @@ export function Tournaments() {
     }
 
     if (crystals < 100) {
-      alert('Недостаточно кристаликов! Нужно минимум 100 cryst.');
+      alert('Недостаточно кристаликов!');
+      return;
+    }
+
+    const webApp = (window as any).Telegram?.WebApp;
+    const telegramId = webApp?.initDataUnsafe?.user?.id;
+
+    if (!telegramId) {
+      alert('Не удалось получить Telegram ID');
       return;
     }
 
     // Списываем у пользователя
     updateCrystals(crystals - 100);
 
-    // Добавляем в общий банк (видно у всех пользователей мгновенно)
+    // Добавляем в общий банк
     await addToBank(100);
 
-    const newBet: Bet = {
-      id: Date.now(),
+    // Сохраняем ставку в Supabase
+    const newBet = {
+      telegram_id: telegramId,
       tournament: currentTournament,
       mode: currentMode,
       prediction: [...prediction],
@@ -150,10 +165,9 @@ export function Tournaments() {
       date: new Date().toLocaleDateString('ru-RU')
     };
 
-    const newBets = [...bets, newBet];
-    saveBets(newBets);
+    await supabase.from('bets').insert(newBet);
 
-    alert(`✅ Ставка 100 кристаликов принята! Банк турнира вырос.`);
+    alert(`✅ Ставка принята! Банк вырос.`);
     setShowBetModal(false);
     setPrediction([]);
   };
