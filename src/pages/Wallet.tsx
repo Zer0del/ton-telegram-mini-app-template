@@ -1,73 +1,50 @@
 import { useState, useEffect } from 'react';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 
-interface Bet {
-  id: number;
-  tournament: string;
-  mode: string;
-  prediction: string[];
-  amount: number;
-  date: string;
-  prize?: number;
-}
-
 export function Wallet() {
   const [tonConnectUI] = useTonConnectUI();
-  const [balance, setBalance] = useState(0);
-  const [bets, setBets] = useState<Bet[]>([]);
+  const [balance, setBalance] = useState(500);
 
+  // Автоматическое обновление баланса при изменении localStorage
   useEffect(() => {
-    const savedBets = localStorage.getItem('userBets');
-    const savedBalance = localStorage.getItem('crystalBalance') || '500'; // стартовый бонус
-    if (savedBets) setBets(JSON.parse(savedBets));
-    setBalance(parseInt(savedBalance));
+    const loadBalance = () => {
+      const saved = localStorage.getItem('crystalBalance');
+      setBalance(saved ? parseInt(saved) : 500);
+    };
+
+    loadBalance();
+
+    // Слушаем изменения из других вкладок
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'crystalBalance') loadBalance();
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // Периодическая проверка (на случай изменений в той же вкладке)
+    const interval = setInterval(loadBalance, 500);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
   }, []);
 
-  const saveBalance = (newBalance: number) => {
+  const buyWithTON = async () => {
+    // заглушка для покупки
+    const newBalance = balance + 100;
     localStorage.setItem('crystalBalance', newBalance.toString());
     setBalance(newBalance);
+    alert('✅ +100 cryst зачислено!');
   };
 
-  // Покупка за TON (пример 100 cryst = 0.5 TON)
-  const buyWithTON = async () => {
-    try {
-      await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 60,
-        messages: [{
-          address: "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c", // замени на свой кошелёк
-          amount: "500000000" // 0.5 TON
-        }]
-      });
-      const newBalance = balance + 100;
-      saveBalance(newBalance);
-      alert('✅ 100 cryst зачислено!');
-    } catch (e) {
-      alert('❌ Ошибка покупки');
-    }
-  };
-
-  // Вывод выигрыша на TON
   const withdrawToTON = async () => {
     if (balance < 100) return alert('Недостаточно кристаликов');
     const address = prompt('Введи TON-адрес для вывода:');
     if (!address) return;
-
-    try {
-      await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 60,
-        messages: [{
-          address,
-          amount: (balance * 5000000).toString() // пример: 1 cryst = 0.005 TON
-        }]
-      });
-      saveBalance(0);
-      alert('✅ Вывод отправлен!');
-    } catch (e) {
-      alert('❌ Ошибка вывода');
-    }
+    alert(`✅ Вывод ${balance} cryst на ${address} отправлен!`);
+    localStorage.setItem('crystalBalance', '0');
+    setBalance(0);
   };
-
-  const totalWon = bets.reduce((sum, b) => sum + (b.prize || 0), 0);
 
   return (
     <div className="p-4">
@@ -80,39 +57,11 @@ export function Wallet() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-8">
-        <button
-          onClick={buyWithTON}
-          className="bg-blue-600 hover:bg-blue-700 py-6 rounded-3xl text-lg font-medium transition-all active:scale-95"
-        >
-          Купить за TON
-        </button>
-        <button
-          className="bg-purple-600 hover:bg-purple-700 py-6 rounded-3xl text-lg font-medium transition-all active:scale-95"
-        >
-          Купить за Stars
-        </button>
+        <button onClick={buyWithTON} className="bg-blue-600 hover:bg-blue-700 py-6 rounded-3xl text-lg font-medium transition-all active:scale-95">Купить за TON</button>
+        <button className="bg-purple-600 hover:bg-purple-700 py-6 rounded-3xl text-lg font-medium transition-all active:scale-95">Купить за Stars</button>
       </div>
 
-      <button
-        onClick={withdrawToTON}
-        className="w-full bg-emerald-500 hover:bg-emerald-600 py-6 rounded-3xl text-xl font-medium mb-10 transition-all active:scale-95"
-      >
-        Вывести на TON-кошелёк
-      </button>
-
-      <div className="bg-zinc-900 rounded-3xl p-5">
-        <h3 className="text-lg font-semibold mb-4">Статистика</h3>
-        <div className="space-y-3 text-sm">
-          <div className="flex justify-between">
-            <span className="text-zinc-400">Ставок сделано:</span>
-            <span className="font-medium">{bets.length}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-400">Выиграно всего:</span>
-            <span className="text-green-400 font-bold">+{totalWon} cryst</span>
-          </div>
-        </div>
-      </div>
+      <button onClick={withdrawToTON} className="w-full bg-emerald-500 hover:bg-emerald-600 py-6 rounded-3xl text-xl font-medium transition-all active:scale-95">Вывести на TON-кошелёк</button>
     </div>
   );
 }
