@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../main';
 
 interface Bet {
   id: number;
@@ -11,28 +12,43 @@ interface Bet {
 
 export function MyBets() {
   const [bets, setBets] = useState<Bet[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('userBets');
-    if (saved) setBets(JSON.parse(saved));
+    const webApp = (window as any).Telegram?.WebApp;
+    const telegramId = webApp?.initDataUnsafe?.user?.id;
+
+    if (!telegramId) {
+      setLoading(false);
+      return;
+    }
+
+    // Загружаем ставки пользователя из Supabase
+    supabase
+      .from('bets')
+      .select('*')
+      .eq('telegram_id', telegramId)
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (data) setBets(data);
+        setLoading(false);
+      });
   }, []);
 
-  const resetAllBets = () => {
-    if (!confirm('Ты уверен? Все ставки будут удалены, но кристалики вернутся обратно.')) return;
+  const resetAllBets = async () => {
+    if (!confirm('Ты уверен? Все ставки будут удалены.')) return;
 
-    const totalRefund = bets.length * 100;
+    const webApp = (window as any).Telegram?.WebApp;
+    const telegramId = webApp?.initDataUnsafe?.user?.id;
 
-    // Возвращаем кристалики
-    const currentBalance = parseInt(localStorage.getItem('crystalBalance') || '500');
-    const newBalance = currentBalance + totalRefund;
-    localStorage.setItem('crystalBalance', newBalance.toString());
-
-    // Удаляем ставки
-    localStorage.removeItem('userBets');
-    setBets([]);
-
-    alert(`✅ Все ставки сброшены! +${totalRefund} cryst возвращено на баланс.`);
+    if (telegramId) {
+      await supabase.from('bets').delete().eq('telegram_id', telegramId);
+      setBets([]);
+      alert('Все ставки сброшены!');
+    }
   };
+
+  if (loading) return <div className="p-4 text-center">Загрузка ставок...</div>;
 
   return (
     <div className="p-4">
@@ -41,7 +57,7 @@ export function MyBets() {
         {bets.length > 0 && (
           <button
             onClick={resetAllBets}
-            className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium transition-all"
+            className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium"
           >
             Сбросить все
           </button>
