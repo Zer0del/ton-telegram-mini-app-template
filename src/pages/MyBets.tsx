@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../main';
+import { useCrystals } from '../hooks/useCrystals';
 
 interface Bet {
   id: number;
@@ -13,6 +14,7 @@ interface Bet {
 export function MyBets() {
   const [bets, setBets] = useState<Bet[]>([]);
   const [loading, setLoading] = useState(true);
+  const { updateCrystals } = useCrystals();
 
   useEffect(() => {
     const webApp = (window as any).Telegram?.WebApp;
@@ -23,34 +25,46 @@ export function MyBets() {
       return;
     }
 
-    // Загрузка всех ставок пользователя из Supabase
     supabase
       .from('bets')
       .select('*')
       .eq('telegram_id', telegramId)
       .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
+      .then(({ data }) => {
         if (data) setBets(data);
         setLoading(false);
       });
   }, []);
 
   const resetAllBets = async () => {
-    if (!confirm('Ты уверен? Все ставки будут удалены безвозвратно.')) return;
+    if (!confirm('Ты уверен? Все ставки будут удалены, а кристалики вернутся обратно.')) return;
 
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
 
-    if (telegramId) {
-      await supabase.from('bets').delete().eq('telegram_id', telegramId);
-      setBets([]);
-      alert('Все ставки сброшены!');
-    }
+    if (!telegramId) return;
+
+    // Возвращаем кристалики (100 за каждую ставку)
+    const totalRefund = bets.length * 100;
+    const { data: current } = await supabase
+      .from('user_balances')
+      .select('crystals')
+      .eq('telegram_id', telegramId)
+      .single();
+
+    const newBalance = (current?.crystals || 500) + totalRefund;
+    await supabase
+      .from('user_balances')
+      .upsert({ telegram_id: telegramId, crystals: newBalance });
+
+    // Удаляем все ставки пользователя
+    await supabase.from('bets').delete().eq('telegram_id', telegramId);
+
+    setBets([]);
+    alert(`✅ Все ставки сброшены! +${totalRefund} cryst возвращено.`);
   };
 
-  if (loading) {
-    return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
-  }
+  if (loading) return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
 
   return (
     <div className="p-4">
