@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../main';
-import { useCrystals } from '../hooks/useCrystals';
 
 interface Bet {
   id: number;
@@ -14,7 +13,6 @@ interface Bet {
 export function MyBets() {
   const [bets, setBets] = useState<Bet[]>([]);
   const [loading, setLoading] = useState(true);
-  const { updateCrystals } = useCrystals();
 
   useEffect(() => {
     const webApp = (window as any).Telegram?.WebApp;
@@ -25,19 +23,21 @@ export function MyBets() {
       return;
     }
 
+    // Загрузка ставок из Supabase
     supabase
       .from('bets')
       .select('*')
       .eq('telegram_id', telegramId)
       .order('created_at', { ascending: false })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error('Ошибка загрузки ставок:', error);
         if (data) setBets(data);
         setLoading(false);
       });
   }, []);
 
   const resetAllBets = async () => {
-    if (!confirm('Ты уверен? Все ставки будут удалены, а кристалики вернутся обратно.')) return;
+    if (!confirm('Ты уверен? Все ставки будут удалены безвозвратно.')) return;
 
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
@@ -47,36 +47,23 @@ export function MyBets() {
       return;
     }
 
-    try {
-      // 1. Возвращаем кристалики (100 за каждую ставку)
-      const totalRefund = bets.length * 100;
-      const { data: current } = await supabase
-        .from('user_balances')
-        .select('crystals')
-        .eq('telegram_id', telegramId)
-        .single();
+    console.log('🗑 Удаляем все ставки для telegram_id:', telegramId);
 
-      const newBalance = (current?.crystals || 500) + totalRefund;
-      await supabase
-        .from('user_balances')
-        .upsert({ telegram_id: telegramId, crystals: newBalance });
+    const { error } = await supabase
+      .from('bets')
+      .delete()
+      .eq('telegram_id', telegramId);
 
-      // 2. Удаляем все ставки пользователя из Supabase
-      const { error } = await supabase
-        .from('bets')
-        .delete()
-        .eq('telegram_id', telegramId);
-
-      if (error) throw error;
-
-      // 3. Очищаем локальный state
-      setBets([]);
-
-      alert(`✅ Все ставки сброшены! +${totalRefund} cryst возвращено на баланс.`);
-    } catch (err) {
-      console.error('Ошибка при сбросе ставок:', err);
-      alert('Ошибка при сбросе ставок. Попробуй ещё раз.');
+    if (error) {
+      console.error('Ошибка удаления из Supabase:', error);
+      alert('Ошибка при сбросе. Попробуй ещё раз.');
+      return;
     }
+
+    console.log('✅ Ставки успешно удалены из Supabase');
+
+    setBets([]);
+    alert('✅ Все ставки сброшены и удалены навсегда!');
   };
 
   if (loading) return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
