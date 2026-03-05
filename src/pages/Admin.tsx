@@ -100,24 +100,33 @@ export function Admin() {
 
       const bank = bankData?.bank || 1000;
 
-      if (winners.length > 0) {
-        const prize = Math.floor(bank / winners.length);
+    if (winners.length > 0) {
+      const prize = Math.floor(bank / winners.length);
 
-        // 4. Раздаём призы каждому победителю
-        for (const winner of winners) {
-          await supabase
-            .from('user_balances')
-            .upsert({
-              telegram_id: winner.telegram_id,
-              crystals: (winner.crystals || 500) + prize
-            });
-        }
+      // 4. Раздаём призы каждому победителю
+      for (const winner of winners) {
+        // Сначала получаем текущий баланс пользователя
+        const { data: user } = await supabase
+          .from('user_balances')
+          .select('crystals')
+          .eq('telegram_id', winner.telegram_id)
+          .single();
 
-        alert(`✅ ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
-      } else {
-        alert('❌ Победителей нет. Банк остаётся.');
+        const currentCrystals = user?.crystals || 500;
+        const newCrystals = currentCrystals + prize;
+
+        await supabase
+          .from('user_balances')
+          .upsert({
+            telegram_id: winner.telegram_id,
+            crystals: newCrystals
+          });
       }
 
+      alert(`✅ ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
+    } else {
+      alert('❌ Победителей нет. Банк остаётся.');
+    }
       // 5. Удаляем банк режима
       await supabase
         .from('tournament_banks')
