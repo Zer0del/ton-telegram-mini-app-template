@@ -17,9 +17,26 @@ export function MyBets() {
     if (saved) setBets(JSON.parse(saved));
   }, []);
 
+  const resetAllBets = () => {
+    if (!confirm('Ты уверен? Все ставки будут удалены безвозвратно.')) return;
+    localStorage.removeItem('userBets');
+    setBets([]);
+    alert('Все ставки сброшены!');
+  };
+
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-6">Мои ставки</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Мои ставки</h1>
+        {bets.length > 0 && (
+          <button
+            onClick={resetAllBets}
+            className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium transition-all"
+          >
+            Сбросить все ставки
+          </button>
+        )}
+      </div>
 
       {bets.length === 0 && (
         <div className="text-center py-20 text-zinc-400">
@@ -36,7 +53,6 @@ export function MyBets() {
             </div>
             <h3 className="text-white text-xl font-medium">{bet.tournament}</h3>
             <p className="text-green-400 mt-1">{bet.mode}</p>
-
             <div className="mt-4">
               <div className="text-xs text-zinc-500 mb-2">ТВОЙ ПРЕДИКТ</div>
               <div className="space-y-2">
