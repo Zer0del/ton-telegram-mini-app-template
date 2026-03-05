@@ -42,26 +42,41 @@ export function MyBets() {
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
 
-    if (!telegramId) return;
+    if (!telegramId) {
+      alert('Не удалось получить Telegram ID');
+      return;
+    }
 
-    // Возвращаем кристалики (100 за каждую ставку)
-    const totalRefund = bets.length * 100;
-    const { data: current } = await supabase
-      .from('user_balances')
-      .select('crystals')
-      .eq('telegram_id', telegramId)
-      .single();
+    try {
+      // 1. Возвращаем кристалики (100 за каждую ставку)
+      const totalRefund = bets.length * 100;
+      const { data: current } = await supabase
+        .from('user_balances')
+        .select('crystals')
+        .eq('telegram_id', telegramId)
+        .single();
 
-    const newBalance = (current?.crystals || 500) + totalRefund;
-    await supabase
-      .from('user_balances')
-      .upsert({ telegram_id: telegramId, crystals: newBalance });
+      const newBalance = (current?.crystals || 500) + totalRefund;
+      await supabase
+        .from('user_balances')
+        .upsert({ telegram_id: telegramId, crystals: newBalance });
 
-    // Удаляем все ставки пользователя
-    await supabase.from('bets').delete().eq('telegram_id', telegramId);
+      // 2. Удаляем все ставки пользователя из Supabase
+      const { error } = await supabase
+        .from('bets')
+        .delete()
+        .eq('telegram_id', telegramId);
 
-    setBets([]);
-    alert(`✅ Все ставки сброшены! +${totalRefund} cryst возвращено.`);
+      if (error) throw error;
+
+      // 3. Очищаем локальный state
+      setBets([]);
+
+      alert(`✅ Все ставки сброшены! +${totalRefund} cryst возвращено на баланс.`);
+    } catch (err) {
+      console.error('Ошибка при сбросе ставок:', err);
+      alert('Ошибка при сбросе ставок. Попробуй ещё раз.');
+    }
   };
 
   if (loading) return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
