@@ -1,70 +1,62 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useTelegram } from '../hooks/useTelegram';
-import { useNavigate } from 'react-router-dom';
-import { useCrystals } from '../hooks/useCrystals';
+import { useState, useEffect } from 'react';
+import { useTonConnectUI } from '@tonconnect/ui-react';
+import { Link } from 'react-router-dom';
 
-export const Home: React.FC = () => {
-  const { haptic } = useTelegram();
-  const navigate = useNavigate();
-  const { crystals } = useCrystals();
+export function Home() {
+  const [tonConnectUI] = useTonConnectUI();
+  const [balance, setBalance] = useState(500);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('crystalBalance');
+    if (saved) setBalance(parseInt(saved));
+  }, []);
+
+  const connectWallet = () => tonConnectUI.connectWallet();
 
   return (
-    <div className="p-5 pb-24 min-h-screen">
-      {/* Баланс кристаликов */}
-      <motion.div 
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-[#121a2e] rounded-3xl p-6 glow-green text-center mb-8"
-      >
-        <div className="flex items-center justify-center gap-3">
-          <span className="text-5xl">💎</span>
+    <div className="p-4">
+      {/* Логотип + Connect */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <img src="https://www.hltv.org/img/static/cs2_logo.png" alt="CS2" className="w-12 h-12" />
           <div>
-            <div className="text-4xl font-bold text-[#00ff9d]">{crystals}</div>
-            <div className="text-[#8ba7c9] -mt-1">Кристалики</div>
+            <div className="text-3xl font-black tracking-tighter">CS2</div>
+            <div className="text-4xl font-black text-green-400 -mt-3">PREDICT</div>
+            <div className="text-xs text-green-400">Top-1 • Top-3 • Top-5</div>
           </div>
         </div>
-      </motion.div>
-
-      {/* Быстрые действия */}
-      <div className="grid grid-cols-2 gap-4 mb-10">
-        <motion.button 
-          whileTap={{ scale: 0.95 }}
-          onClick={() => { haptic('medium'); alert('Покупка за Stars/TON (позже интеграция)'); }}
-          className="neon-btn bg-gradient-to-r from-[#00ff9d] to-[#00eaff] text-black font-bold py-6 rounded-3xl glow-green"
+        <button
+          onClick={connectWallet}
+          className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-3xl font-medium text-sm"
         >
-          Купить кристалики
-        </motion.button>
-
-        <motion.button 
-          whileTap={{ scale: 0.95 }}
-          onClick={() => { haptic('medium'); navigate('/tournaments'); }}
-          className="neon-btn border-2 border-[#00ff9d] text-[#00ff9d] font-bold py-6 rounded-3xl"
-        >
-          Сделать предикт
-        </motion.button>
+          Connect Wallet
+        </button>
       </div>
 
-      {/* Задания для бесплатных кристаликов */}
-      <h2 className="text-xl font-bold mb-4 text-[#00eaff]">Задания за кристалики</h2>
-      <div className="space-y-3">
-        {[
-          "Поделись приложением с другом (+50 💎)",
-          "Пригласи 3 друзей (+200 💎)",
-          "Поставь предикт на 3 турнира (+100 💎)"
-        ].map((task, i) => (
-          <motion.div 
-            key={i}
-            initial={{ x: -50 }}
-            animate={{ x: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-[#121a2e] p-5 rounded-2xl flex justify-between items-center"
-          >
-            <div>{task}</div>
-            <button className="px-6 py-2 bg-[#00ff9d] text-black rounded-xl text-sm font-bold">Получить</button>
-          </motion.div>
-        ))}
+      {/* Баланс */}
+      <div className="bg-gradient-to-br from-zinc-900 to-black border border-zinc-700 rounded-3xl p-8 text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center text-5xl">💎</div>
+        </div>
+        <div className="text-7xl font-bold text-green-400">{balance}</div>
+        <div className="text-xl text-zinc-400">Кристалики</div>
+      </div>
+
+      {/* Кнопки */}
+      <div className="grid grid-cols-2 gap-4">
+        <Link
+          to="/wallet"
+          className="bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-medium py-6 rounded-3xl text-center text-lg active:scale-95 transition-all"
+        >
+          Купить кристалики
+        </Link>
+        <Link
+          to="/tournaments"
+          className="border-2 border-green-400 text-green-400 font-medium py-6 rounded-3xl text-center text-lg active:scale-95 transition-all"
+        >
+          Сделать предикт
+        </Link>
       </div>
     </div>
   );
-};
+}
