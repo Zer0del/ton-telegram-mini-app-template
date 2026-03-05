@@ -123,6 +123,18 @@ export function Tournaments() {
       return;
     }
 
+    // === НОВАЯ ЛОГИКА: списание баланса ===
+    const currentBalance = parseInt(localStorage.getItem('cs2_crystals') || '500');
+    if (currentBalance < 100) {
+      alert('Недостаточно кристаликов! Нужно минимум 100 cryst.');
+      return;
+    }
+
+    // Списываем 100 cryst
+    const newBalance = currentBalance - 100;
+    localStorage.setItem('cs2_crystals', newBalance.toString());
+    // =======================================
+
     const newBet: Bet = {
       id: Date.now(),
       tournament: currentTournament,
@@ -135,7 +147,7 @@ export function Tournaments() {
     const newBets = [...bets, newBet];
     saveBets(newBets);
 
-    alert(`✅ Ставка 100 кристаликов принята!`);
+    alert(`✅ Ставка 100 кристаликов принята! Баланс уменьшен.`);
     setShowBetModal(false);
     setPrediction([]);
   };
@@ -184,7 +196,7 @@ export function Tournaments() {
                       <span className="text-green-400 font-bold">Место {i + 1}</span>
                       <div className="text-white text-lg mt-1">{prediction[i] || 'Выбери команду'}</div>
                     </div>
-                    {prediction[i] && <button onClick={() => removeTeam(i)} className="text-red-400 text-3xl">✕</button>}
+                    {prediction[i] && <button onClick={() => removeTeam(i)} className="text-red-400 text-3xl">X</button>}
                   </div>
                 ))}
               </div>
