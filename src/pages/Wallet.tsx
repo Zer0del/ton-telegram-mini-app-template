@@ -1,49 +1,22 @@
-import { useState, useEffect } from 'react';
 import { useTonConnectUI } from '@tonconnect/ui-react';
+import { useCrystals } from '../hooks/useCrystals';
 
 export function Wallet() {
   const [tonConnectUI] = useTonConnectUI();
-  const [balance, setBalance] = useState(500);
-
-  // Автоматическое обновление баланса при изменении localStorage
-  useEffect(() => {
-    const loadBalance = () => {
-      const saved = localStorage.getItem('crystalBalance');
-      setBalance(saved ? parseInt(saved) : 500);
-    };
-
-    loadBalance();
-
-    // Слушаем изменения из других вкладок
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'crystalBalance') loadBalance();
-    };
-    window.addEventListener('storage', handleStorageChange);
-
-    // Периодическая проверка (на случай изменений в той же вкладке)
-    const interval = setInterval(loadBalance, 500);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
+  const { crystals, updateCrystals } = useCrystals();
 
   const buyWithTON = async () => {
-    // заглушка для покупки
-    const newBalance = balance + 100;
-    localStorage.setItem('crystalBalance', newBalance.toString());
-    setBalance(newBalance);
+    const newBalance = crystals + 100;
+    updateCrystals(newBalance);
     alert('✅ +100 cryst зачислено!');
   };
 
   const withdrawToTON = async () => {
-    if (balance < 100) return alert('Недостаточно кристаликов');
+    if (crystals < 100) return alert('Недостаточно кристаликов');
     const address = prompt('Введи TON-адрес для вывода:');
     if (!address) return;
-    alert(`✅ Вывод ${balance} cryst на ${address} отправлен!`);
-    localStorage.setItem('crystalBalance', '0');
-    setBalance(0);
+    alert(`✅ Вывод ${crystals} cryst на ${address} отправлен!`);
+    updateCrystals(0);
   };
 
   return (
@@ -52,7 +25,7 @@ export function Wallet() {
 
       <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-8 text-center mb-8">
         <div className="text-sm opacity-75">Твой баланс</div>
-        <div className="text-6xl font-bold mt-2">{balance}</div>
+        <div className="text-6xl font-bold mt-2">{crystals}</div>
         <div className="text-xl mt-1">кристаликов</div>
       </div>
 
