@@ -7,6 +7,7 @@ interface Bet {
   prediction: string[];
   amount: number;
   date: string;
+  prize?: number; // ← для показа выигрыша
 }
 
 export function MyBets() {
@@ -53,6 +54,7 @@ export function MyBets() {
             </div>
             <h3 className="text-white text-xl font-medium">{bet.tournament}</h3>
             <p className="text-green-400 mt-1">{bet.mode}</p>
+
             <div className="mt-4">
               <div className="text-xs text-zinc-500 mb-2">ТВОЙ ПРЕДИКТ</div>
               <div className="space-y-2">
@@ -64,6 +66,13 @@ export function MyBets() {
                 ))}
               </div>
             </div>
+
+            {/* ← ЭТА СТРОКА УЖЕ ВСТАВЛЕНА */}
+            {bet.prize && (
+              <div className="text-green-400 text-xl font-bold mt-4 border-t border-zinc-700 pt-4 flex items-center justify-center gap-2">
+                🎉 + {bet.prize} cryst (выигрыш!)
+              </div>
+            )}
           </div>
         ))}
       </div>
