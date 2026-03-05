@@ -5,9 +5,14 @@ import App from './App.tsx';
 import './index.css';
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import telegram from '@twa-dev/sdk';
-import { Analytics } from '@vercel/analytics/react';   // ← добавили
+import { createClient } from '@supabase/supabase-js';
 
-const manifestUrl = 'https://tonpanda.com/wp-content/uploads/2024/10/tonconnect-manifest.json';
+// === ВСТАВЬ СВОИ ДАННЫЕ ИЗ SUPABASE ===
+const supabaseUrl = 'https://nyyykbtkygmlbxlqicmi.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55eXlrYnRreWdtbGJ4bHFpY21pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MjY1MjAsImV4cCI6MjA4ODMwMjUyMH0.-8ZrB1wfIS17noxYt7sbX2UJEa7s2ROkBQUTC80epzE';
+// =====================================
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const queryClient = new QueryClient();
 
@@ -16,20 +21,12 @@ const Root = () => {
     const webApp = telegram;
     webApp.ready();
     webApp.expand();
-
-    // Отправляем событие открытия мини-аппа в Vercel Analytics
-    const user = webApp.initDataUnsafe?.user;
-    if (user) {
-      console.log(`👤 Новый пользователь: @${user.username || user.id}`);
-      // Vercel автоматически увидит это как уникального пользователя
-    }
   }, []);
 
   return (
-    <TonConnectUIProvider manifestUrl={manifestUrl}>
+    <TonConnectUIProvider manifestUrl="https://tonpanda.com/wp-content/uploads/2024/10/tonconnect-manifest.json">
       <QueryClientProvider client={queryClient}>
         <App />
-        <Analytics /> {/* ← эта строка включает трекинг */}
       </QueryClientProvider>
     </TonConnectUIProvider>
   );
