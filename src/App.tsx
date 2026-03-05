@@ -11,10 +11,11 @@ import { Admin } from './pages/Admin';
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-black text-white flex flex-col">
+      <div className="min-h-screen bg-black text-white flex flex-col overflow-hidden">
         <Header />
-        
-        <main className="flex-1 main-content overflow-y-auto">
+
+        {/* Главный контент растягивается и прижимает footer вниз */}
+        <main className="flex-1 overflow-y-auto main-content">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tournaments" element={<Tournaments />} />
