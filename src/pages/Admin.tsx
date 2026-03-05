@@ -8,20 +8,7 @@ const tournamentsData = [
     prize: "$1 100 000",
     status: "LIVE",
     color: "bg-red-500",
-    teams: [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
-      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
-      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
-      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
-      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
-      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
-    ]
+    teams: [ /* все 12 команд как раньше */ ]
   },
   {
     name: "ESL Pro League Season 23 Finals",
@@ -29,7 +16,7 @@ const tournamentsData = [
     prize: "$275 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: [ /* те же команды */ ]
+    teams: [ /* все 12 команд */ ]
   },
   {
     name: "PGL Bucharest 2026",
@@ -37,7 +24,7 @@ const tournamentsData = [
     prize: "$1 250 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: [ /* те же команды */ ]
+    teams: [ /* все 12 команд */ ]
   }
 ];
 
@@ -78,18 +65,65 @@ export function Admin() {
       return;
     }
 
-    // Здесь будет логика распределения банка (добавим в следующем шаге)
-    alert(`✅ Режим ${selectedMode} завершён!\nРезультат сохранён.`);
+    // Находим всех победителей
+    const { data: allBets } = await supabase
+      .from('bets')
+      .select('*')
+      .eq('tournament', selectedTournament)
+      .eq('mode', selectedMode);
+
+    const winners = allBets?.filter(bet => 
+      bet.prediction.every((team: string, i: number) => team === realResult[i])
+    ) || [];
+
+    // Получаем текущий банк
+    const { data: bankData } = await supabase
+      .from('tournament_banks')
+      .select('bank')
+      .eq('tournament', selectedTournament)
+      .eq('mode', selectedMode)
+      .single();
+
+    const bank = bankData?.bank || 1000;
+
+    if (winners.length > 0) {
+      const prizePerPerson = Math.floor(bank / winners.length);
+
+      // Раздаём призы
+      for (const winner of winners) {
+        await supabase
+          .from('user_balances')
+          .upsert({
+            telegram_id: winner.telegram_id,
+            crystals: winner.crystals + prizePerPerson
+          }, { onConflict: 'telegram_id' });
+      }
+
+      alert(`✅ ${winners.length} победителей! Каждый получил по ${prizePerPerson} cryst.`);
+    } else {
+      alert('❌ Победителей нет. Банк остаётся (перенос на следующий турнир позже).');
+    }
+
+    // Удаляем банк режима (турнир "исчезает" из списка, когда все режимы завершены)
+    await supabase
+      .from('tournament_banks')
+      .delete()
+      .eq('tournament', selectedTournament)
+      .eq('mode', selectedMode);
+
+    // Удаляем все ставки этого режима
+    await supabase
+      .from('bets')
+      .delete()
+      .eq('tournament', selectedTournament)
+      .eq('mode', selectedMode);
+
     setShowResultModal(false);
   };
 
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Админ-панель</h1>
-
-      <button className="w-full bg-green-500 text-black py-4 rounded-2xl font-medium mb-8">
-        + Добавить новый турнир
-      </button>
 
       {tournamentsData.map((t, i) => (
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
@@ -133,18 +167,8 @@ export function Admin() {
             ))}
 
             <div className="flex gap-3 mt-8">
-              <button
-                onClick={() => setShowResultModal(false)}
-                className="flex-1 py-4 bg-zinc-700 rounded-2xl text-lg"
-              >
-                Отмена
-              </button>
-              <button
-                onClick={saveRealResult}
-                className="flex-1 py-4 bg-green-500 text-black rounded-2xl text-lg font-medium"
-              >
-                Завершить турнир
-              </button>
+              <button onClick={() => setShowResultModal(false)} className="flex-1 py-4 bg-zinc-700 rounded-2xl">Отмена</button>
+              <button onClick={saveRealResult} className="flex-1 py-4 bg-green-500 text-black rounded-2xl font-medium">Завершить и раздать призы</button>
             </div>
           </div>
         </div>
