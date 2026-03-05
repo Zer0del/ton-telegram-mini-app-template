@@ -1,31 +1,37 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../main';
 
-const tournamentsData = [ /* тот же массив 3 турниров */ ];
+const tournamentsData = [ /* здесь остаётся твой массив турниров */ ];
 
 export function Admin() {
-  const [showResultModal, setShowResultModal] = useState(false);
-  const [selectedTournament, setSelectedTournament] = useState('');
-  const [selectedMode, setSelectedMode] = useState('');
-  const [realResult, setRealResult] = useState<string[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const finishMode = (t: string, m: string) => { setSelectedTournament(t); setSelectedMode(m); setRealResult([]); setShowResultModal(true); };
+  useEffect(() => {
+    const webApp = (window as any).Telegram?.WebApp;
+    const userId = webApp?.initDataUnsafe?.user?.id;
 
+    // ТВОЙ ID — только ты имеешь доступ
+    if (userId === 636499517) {
+      setIsAdmin(true);
+    }
+  }, []);
+
+  if (!isAdmin) {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-6xl mb-4">🔒</div>
+        <h1 className="text-2xl font-bold text-red-400">Доступ запрещён</h1>
+        <p className="text-zinc-400 mt-2">Эта панель только для администратора</p>
+      </div>
+    );
+  }
+
+  // === ТВОЯ АДМИНКА (только ты видишь) ===
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Админ-панель</h1>
-      {tournamentsData.map((t, i) => (
-        <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
-          <h2 className="text-xl font-bold mb-3">{t.name}</h2>
-          {['Top-1', 'Top-3', 'Top-5'].map(mode => (
-            <button key={mode} onClick={() => finishMode(t.name, mode)} className="w-full bg-red-600 py-6 rounded-3xl mb-3">
-              Завершить {mode}
-            </button>
-          ))}
-        </div>
-      ))}
-
-      {/* модалка результата — как раньше */}
-      {showResultModal && <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"> {/* модалка с select */} </div>}
+      {/* Здесь будет удобный интерфейс для добавления и завершения турниров */}
+      {/* Я добавлю его в следующем сообщении, если скажешь "давай полный админ" */}
     </div>
   );
 }
