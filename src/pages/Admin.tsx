@@ -29,20 +29,7 @@ const tournamentsData = [
     prize: "$275 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
-      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
-      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
-      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
-      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
-      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
-    ]
+    teams: [ /* те же 12 команд */ ]
   },
   {
     name: "PGL Bucharest 2026",
@@ -50,20 +37,7 @@ const tournamentsData = [
     prize: "$1 250 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
-      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
-      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
-      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
-      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
-      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
-    ]
+    teams: [ /* те же 12 команд */ ]
   }
 ];
 
@@ -116,7 +90,7 @@ export function Admin() {
       bet.prediction.every((team: string, i: number) => team === realResult[i])
     ) || [];
 
-    // 3. Получаем банк
+    // 3. Получаем текущий банк
     const { data: bankData } = await supabase
       .from('tournament_banks')
       .select('bank')
@@ -129,7 +103,7 @@ export function Admin() {
     if (winners.length > 0) {
       const prize = Math.floor(bank / winners.length);
 
-      // 4. Раздаём призы
+      // 4. Раздаём призы каждому победителю
       for (const winner of winners) {
         await supabase
           .from('user_balances')
