@@ -5,21 +5,21 @@
 html, body, #root {
   margin: 0;
   padding: 0;
-  height: 100%;
-  min-height: 100vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  height: 100dvh;                    /* ← важно для Telegram */
+  min-height: 100dvh;
+  overflow: hidden;
   background-color: #0f0f0f;
 }
 
-/* Усиленные безопасные отступы + большой запас под footer */
+/* Безопасные отступы под статус-бар и нижнюю панель Telegram */
 .safe-area {
-  padding-top: max(env(safe-area-inset-top), 12px);
-  padding-bottom: max(env(safe-area-inset-bottom), 100px);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Основной контент растягивается и прижимает футер */
 .main-content {
-  padding-bottom: 120px; /* ← главный фикс, чтобы footer всегда был внизу */
+  flex: 1;
   overflow-y: auto;
-  min-height: calc(100vh - 80px);
+  padding-bottom: 90px; /* запас под футер */
 }
