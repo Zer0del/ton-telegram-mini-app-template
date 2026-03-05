@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCrystals } from '../hooks/useCrystals';
+import { useBank } from '../hooks/useBank';
 
 const tournamentsData = [
   {
@@ -83,9 +84,12 @@ export function Tournaments() {
   const [prediction, setPrediction] = useState<string[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
 
-  const { crystals, updateCrystals } = useCrystals(); // ← используем общий хук
+  const { crystals, updateCrystals } = useCrystals();
 
-  // Загрузка сохранённых ставок
+  // Общий банк турнира (обновляется у всех пользователей в реальном времени)
+  const { bank, addToBank } = useBank(currentTournament, currentMode);
+
+  // Загрузка сохранённых ставок пользователя
   useEffect(() => {
     const saved = localStorage.getItem('userBets');
     if (saved) setBets(JSON.parse(saved));
@@ -120,20 +124,22 @@ export function Tournaments() {
     return bets.some(b => b.tournament === tournament && b.mode === mode);
   };
 
-  const handleConfirmBet = () => {
+  const handleConfirmBet = async () => {
     if (prediction.length !== parseInt(currentMode.replace('Top-', ''))) {
       alert('Выбери все места!');
       return;
     }
 
-    // Проверка и списание баланса
     if (crystals < 100) {
       alert('Недостаточно кристаликов! Нужно минимум 100 cryst.');
       return;
     }
 
-    const newBalance = crystals - 100;
-    updateCrystals(newBalance); // ← баланс сразу обновится везде
+    // Списываем у пользователя
+    updateCrystals(crystals - 100);
+
+    // Добавляем в общий банк (видно у всех пользователей мгновенно)
+    await addToBank(100);
 
     const newBet: Bet = {
       id: Date.now(),
@@ -147,7 +153,7 @@ export function Tournaments() {
     const newBets = [...bets, newBet];
     saveBets(newBets);
 
-    alert(`✅ Ставка 100 кристаликов принята! Баланс: ${newBalance}`);
+    alert(`✅ Ставка 100 кристаликов принята! Банк турнира вырос.`);
     setShowBetModal(false);
     setPrediction([]);
   };
@@ -161,6 +167,8 @@ export function Tournaments() {
           <h2 className="text-xl font-bold mb-3">{t.name}</h2>
           {['Top-1', 'Top-3', 'Top-5'].map((mode, idx) => {
             const alreadyBet = hasBet(t.name, mode);
+            const currentBank = useBank(t.name, mode).bank;
+
             return (
               <button
                 key={idx}
@@ -172,7 +180,7 @@ export function Tournaments() {
                     : 'bg-zinc-800 hover:bg-zinc-700 active:scale-[0.97]'
                 }`}
               >
-                {mode} • Банк: 1000 {alreadyBet && '(ставка сделана)'}
+                {mode} • Банк: {currentBank} cryst {alreadyBet && '(ставка сделана)'}
               </button>
             );
           })}
@@ -196,7 +204,7 @@ export function Tournaments() {
                       <span className="text-green-400 font-bold">Место {i + 1}</span>
                       <div className="text-white text-lg mt-1">{prediction[i] || 'Выбери команду'}</div>
                     </div>
-                    {prediction[i] && <button onClick={() => removeTeam(i)} className="text-red-400 text-3xl">X</button>}
+                    {prediction[i] && <button onClick={() => removeTeam(i)} className="text-red-400 text-3xl">✕</button>}
                   </div>
                 ))}
               </div>
