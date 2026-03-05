@@ -29,7 +29,20 @@ const tournamentsData = [
     prize: "$275 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: [ /* все 12 команд */ ]
+    teams: [
+      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
+      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
+      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
+      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
+      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
+      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
+    ]
   },
   {
     name: "PGL Bucharest 2026",
@@ -37,7 +50,20 @@ const tournamentsData = [
     prize: "$1 250 000",
     status: "Скоро",
     color: "bg-yellow-500",
-    teams: [ /* все 12 команд */ ]
+    teams: [
+      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
+      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
+      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
+      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
+      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
+      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
+    ]
   }
 ];
 
@@ -78,18 +104,19 @@ export function Admin() {
       return;
     }
 
-    // 1. Находим всех пользователей, которые угадали точно
+    // 1. Получаем все ставки этого режима
     const { data: allBets } = await supabase
       .from('bets')
       .select('*')
       .eq('tournament', selectedTournament)
       .eq('mode', selectedMode);
 
-    const winners = allBets?.filter(bet => 
+    // 2. Находим победителей (полное совпадение)
+    const winners = allBets?.filter(bet =>
       bet.prediction.every((team: string, i: number) => team === realResult[i])
     ) || [];
 
-    // 2. Получаем банк
+    // 3. Получаем банк
     const { data: bankData } = await supabase
       .from('tournament_banks')
       .select('bank')
@@ -102,13 +129,13 @@ export function Admin() {
     if (winners.length > 0) {
       const prize = Math.floor(bank / winners.length);
 
-      // 3. Раздаём призы каждому победителю
+      // 4. Раздаём призы
       for (const winner of winners) {
         await supabase
           .from('user_balances')
           .upsert({
             telegram_id: winner.telegram_id,
-            crystals: (winner.crystals || 0) + prize
+            crystals: (winner.crystals || 500) + prize
           });
       }
 
@@ -117,14 +144,14 @@ export function Admin() {
       alert('❌ Победителей нет. Банк остаётся.');
     }
 
-    // 4. Удаляем банк режима
+    // 5. Удаляем банк режима
     await supabase
       .from('tournament_banks')
       .delete()
       .eq('tournament', selectedTournament)
       .eq('mode', selectedMode);
 
-    // 5. Удаляем все ставки этого режима
+    // 6. Удаляем все ставки этого режима
     await supabase
       .from('bets')
       .delete()
@@ -154,13 +181,10 @@ export function Admin() {
         </div>
       ))}
 
-      {/* Модалка ввода результата */}
       {showResultModal && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
           <div className="bg-[#171717] w-full max-w-md rounded-3xl p-6">
-            <h3 className="text-xl font-bold mb-6 text-center">
-              Реальный результат — {selectedMode}
-            </h3>
+            <h3 className="text-xl font-bold mb-6 text-center">Реальный результат — {selectedMode}</h3>
 
             {Array.from({ length: parseInt(selectedMode.replace('Top-', '')) }).map((_, i) => (
               <select
