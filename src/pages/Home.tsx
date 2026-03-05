@@ -35,7 +35,7 @@ export function Home() {
         </button>
       </div>
 
-      {/* Карточка баланса */}
+      {/* Карточка баланса кристаликов */}
       <div className="bg-gradient-to-br from-zinc-900 to-black border border-zinc-700 rounded-3xl p-8 text-center mb-8">
         <div className="flex justify-center mb-4">
           <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center text-5xl">💎</div>
