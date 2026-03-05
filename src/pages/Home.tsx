@@ -11,7 +11,7 @@ export const Home: React.FC = () => {
 
   return (
     <div className="p-5 pb-24 min-h-screen">
-      {/* Логотип и Connect Wallet — только один раз вверху */}
+      {/* Верхний блок — ОСТАВЛЯЕМ ТОЛЬКО ЕГО (как на твоём скрине) */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <img src="https://www.hltv.org/img/static/cs2_logo.png" alt="CS2" className="w-12 h-12" />
@@ -21,12 +21,10 @@ export const Home: React.FC = () => {
             <div className="text-xs text-green-400">Top-1 • Top-3 • Top-5</div>
           </div>
         </div>
-        <button
-          onClick={() => { haptic('medium'); alert('Connect Wallet (в разработке)'); }}
-          className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-3xl font-medium text-sm"
-        >
-          Connect Wallet
-        </button>
+        <div className="bg-zinc-800 px-5 py-2 rounded-3xl text-sm font-medium flex items-center gap-2">
+          UQCm...j9kg
+          <span className="text-green-400">▼</span>
+        </div>
       </div>
 
       {/* Баланс кристаликов */}
