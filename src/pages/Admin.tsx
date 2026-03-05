@@ -78,7 +78,7 @@ export function Admin() {
       return;
     }
 
-    // Находим всех победителей
+    // 1. Находим всех пользователей, которые угадали точно
     const { data: allBets } = await supabase
       .from('bets')
       .select('*')
@@ -89,7 +89,7 @@ export function Admin() {
       bet.prediction.every((team: string, i: number) => team === realResult[i])
     ) || [];
 
-    // Получаем текущий банк
+    // 2. Получаем банк
     const { data: bankData } = await supabase
       .from('tournament_banks')
       .select('bank')
@@ -100,37 +100,38 @@ export function Admin() {
     const bank = bankData?.bank || 1000;
 
     if (winners.length > 0) {
-      const prizePerPerson = Math.floor(bank / winners.length);
+      const prize = Math.floor(bank / winners.length);
 
-      // Раздаём призы
+      // 3. Раздаём призы каждому победителю
       for (const winner of winners) {
         await supabase
           .from('user_balances')
           .upsert({
             telegram_id: winner.telegram_id,
-            crystals: winner.crystals + prizePerPerson
-          }, { onConflict: 'telegram_id' });
+            crystals: (winner.crystals || 0) + prize
+          });
       }
 
-      alert(`✅ ${winners.length} победителей! Каждый получил по ${prizePerPerson} cryst.`);
+      alert(`✅ ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
     } else {
-      alert('❌ Победителей нет. Банк остаётся (перенос на следующий турнир позже).');
+      alert('❌ Победителей нет. Банк остаётся.');
     }
 
-    // Удаляем банк режима (турнир "исчезает" из списка, когда все режимы завершены)
+    // 4. Удаляем банк режима
     await supabase
       .from('tournament_banks')
       .delete()
       .eq('tournament', selectedTournament)
       .eq('mode', selectedMode);
 
-    // Удаляем все ставки этого режима
+    // 5. Удаляем все ставки этого режима
     await supabase
       .from('bets')
       .delete()
       .eq('tournament', selectedTournament)
       .eq('mode', selectedMode);
 
+    alert('Турнир завершён. Данные очищены.');
     setShowResultModal(false);
   };
 
