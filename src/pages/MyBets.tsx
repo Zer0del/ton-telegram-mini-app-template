@@ -18,10 +18,20 @@ export function MyBets() {
   }, []);
 
   const resetAllBets = () => {
-    if (!confirm('Ты уверен? Все ставки будут удалены безвозвратно.')) return;
+    if (!confirm('Ты уверен? Все ставки будут удалены, но кристалики вернутся обратно.')) return;
+
+    const totalRefund = bets.length * 100;
+
+    // Возвращаем кристалики
+    const currentBalance = parseInt(localStorage.getItem('crystalBalance') || '500');
+    const newBalance = currentBalance + totalRefund;
+    localStorage.setItem('crystalBalance', newBalance.toString());
+
+    // Удаляем ставки
     localStorage.removeItem('userBets');
     setBets([]);
-    alert('Все ставки сброшены!');
+
+    alert(`✅ Все ставки сброшены! +${totalRefund} cryst возвращено на баланс.`);
   };
 
   return (
@@ -29,7 +39,12 @@ export function MyBets() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Мои ставки</h1>
         {bets.length > 0 && (
-          <button onClick={resetAllBets} className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium">Сбросить все</button>
+          <button
+            onClick={resetAllBets}
+            className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium transition-all"
+          >
+            Сбросить все
+          </button>
         )}
       </div>
 
