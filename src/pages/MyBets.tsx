@@ -1,60 +1,56 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useTelegram } from '../hooks/useTelegram';
+import { useState, useEffect } from 'react';
 
-export const MyBets: React.FC = () => {
-  const { haptic } = useTelegram();
-  const navigate = useNavigate();
-  const [predictions, setPredictions] = useState<any[]>([]);
+interface Bet {
+  id: number;
+  tournament: string;
+  mode: string;
+  prediction: string[];
+  amount: number;
+  date: string;
+}
+
+export function MyBets() {
+  const [bets, setBets] = useState<Bet[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('cs2_predictions');
-    if (saved) setPredictions(JSON.parse(saved));
+    const saved = localStorage.getItem('userBets');
+    if (saved) setBets(JSON.parse(saved));
   }, []);
 
-  const launchConfetti = () => {
-    for (let i = 0; i < 150; i++) {
-      const c = document.createElement('div');
-      c.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-10px;width:8px;height:8px;background:hsl(${Math.random()*360},100%,70%);border-radius:50%;z-index:9999;`;
-      document.body.appendChild(c);
-      c.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: `translateY(${window.innerHeight+100}px) rotate(${Math.random()*720}deg)`, opacity: 0 }], { duration: 2500 }).onfinish = () => c.remove();
-    }
-  };
-
-  useEffect(() => {
-    if (predictions.some(p => p.status === 'Выиграл')) launchConfetti();
-  }, [predictions]);
-
   return (
-    <div className="p-5 pb-24">
-      <h1 className="text-3xl font-bold mb-8 text-center text-[#00eaff]">Мои предикты</h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-6">Мои ставки</h1>
 
-      {predictions.length === 0 ? (
-        <div className="text-center py-20 opacity-60">
-          Пока нет предиктов<br />
-          <button onClick={() => navigate('/tournaments')} className="mt-6 px-8 py-4 bg-[#00ff9d] text-black rounded-2xl font-bold">Сделать первый</button>
+      {bets.length === 0 && (
+        <div className="text-center py-20 text-zinc-400">
+          Пока нет ставок<br />Сделай первую на странице «Турниры»
         </div>
-      ) : (
-        <div className="space-y-6">
-          {predictions.map((p, i) => (
-            <motion.div key={i} className="bg-[#121a2e] rounded-3xl p-6 glow-green">
-              <div className="font-bold text-xl mb-1">{p.tournament}</div>
-              <div className="text-[#8ba7c9]">Режим: {p.mode} • Банк: {p.bank} 💎</div>
-              <div className="my-5 space-y-2">
-                {p.order.map((team: string, idx: number) => (
-                  <div key={idx} className="bg-[#1e2a4a] px-5 py-3 rounded-2xl flex items-center gap-3">
-                    <span className="text-[#00ff9d] font-bold w-6">{idx + 1}.</span> {team}
+      )}
+
+      <div className="space-y-6">
+        {bets.map((bet) => (
+          <div key={bet.id} className="bg-zinc-900 rounded-3xl p-5">
+            <div className="flex justify-between text-sm text-zinc-400 mb-2">
+              <span>{bet.date}</span>
+              <span className="text-green-400">- {bet.amount} cryst</span>
+            </div>
+            <h3 className="text-white text-xl font-medium">{bet.tournament}</h3>
+            <p className="text-green-400 mt-1">{bet.mode}</p>
+
+            <div className="mt-4">
+              <div className="text-xs text-zinc-500 mb-2">ТВОЙ ПРЕДИКТ</div>
+              <div className="space-y-2">
+                {bet.prediction.map((team, index) => (
+                  <div key={index} className="bg-zinc-800 rounded-2xl p-3 flex items-center gap-3">
+                    <span className="text-green-400 font-bold w-6">#{index + 1}</span>
+                    <span className="text-white">{team}</span>
                   </div>
                 ))}
               </div>
-              <div className={`text-center font-bold py-2 rounded-2xl ${p.status === 'Выиграл' ? 'bg-green-600' : 'bg-yellow-500 text-black'}`}>
-                {p.status}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
-};
+}
