@@ -23,64 +23,22 @@ export function MyBets() {
       return;
     }
 
-    // Загрузка ставок из Supabase
     supabase
       .from('bets')
       .select('*')
       .eq('telegram_id', telegramId)
       .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) console.error('Ошибка загрузки ставок:', error);
+      .then(({ data }) => {
         if (data) setBets(data);
         setLoading(false);
       });
   }, []);
 
-  const resetAllBets = async () => {
-    if (!confirm('Ты уверен? Все ставки будут удалены безвозвратно.')) return;
-
-    const webApp = (window as any).Telegram?.WebApp;
-    const telegramId = webApp?.initDataUnsafe?.user?.id;
-
-    if (!telegramId) {
-      alert('Не удалось получить Telegram ID');
-      return;
-    }
-
-    console.log('🗑 Удаляем все ставки для telegram_id:', telegramId);
-
-    const { error } = await supabase
-      .from('bets')
-      .delete()
-      .eq('telegram_id', telegramId);
-
-    if (error) {
-      console.error('Ошибка удаления из Supabase:', error);
-      alert('Ошибка при сбросе. Попробуй ещё раз.');
-      return;
-    }
-
-    console.log('✅ Ставки успешно удалены из Supabase');
-
-    setBets([]);
-    alert('✅ Все ставки сброшены и удалены навсегда!');
-  };
-
   if (loading) return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Мои ставки</h1>
-        {bets.length > 0 && (
-          <button
-            onClick={resetAllBets}
-            className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium transition-all"
-          >
-            Сбросить все
-          </button>
-        )}
-      </div>
+      <h1 className="text-2xl font-bold mb-6">Мои ставки</h1>
 
       {bets.length === 0 && (
         <div className="text-center py-20 text-zinc-400">
