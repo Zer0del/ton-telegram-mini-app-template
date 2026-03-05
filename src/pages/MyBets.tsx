@@ -7,7 +7,6 @@ interface Bet {
   prediction: string[];
   amount: number;
   date: string;
-  prize?: number; // ← для показа выигрыша
 }
 
 export function MyBets() {
@@ -30,12 +29,7 @@ export function MyBets() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Мои ставки</h1>
         {bets.length > 0 && (
-          <button
-            onClick={resetAllBets}
-            className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium transition-all"
-          >
-            Сбросить все ставки
-          </button>
+          <button onClick={resetAllBets} className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-sm font-medium">Сбросить все</button>
         )}
       </div>
 
@@ -66,13 +60,6 @@ export function MyBets() {
                 ))}
               </div>
             </div>
-
-            {/* ← ЭТА СТРОКА УЖЕ ВСТАВЛЕНА */}
-            {bet.prize && (
-              <div className="text-green-400 text-xl font-bold mt-4 border-t border-zinc-700 pt-4 flex items-center justify-center gap-2">
-                🎉 + {bet.prize} cryst (выигрыш!)
-              </div>
-            )}
           </div>
         ))}
       </div>
