@@ -3,11 +3,11 @@ import { useCrystals } from '../hooks/useCrystals';
 
 export function Wallet() {
   const [tonConnectUI] = useTonConnectUI();
-  const { crystals, updateCrystals } = useCrystals();
+  const { crystals, updateCrystals, loading } = useCrystals();
 
   const buyWithTON = async () => {
     const newBalance = crystals + 100;
-    updateCrystals(newBalance);
+    await updateCrystals(newBalance);
     alert('✅ +100 cryst зачислено!');
   };
 
@@ -15,9 +15,11 @@ export function Wallet() {
     if (crystals < 100) return alert('Недостаточно кристаликов');
     const address = prompt('Введи TON-адрес для вывода:');
     if (!address) return;
-    alert(`✅ Вывод ${crystals} cryst на ${address} отправлен!`);
-    updateCrystals(0);
+    alert(`✅ Вывод ${crystals} cryst отправлен!`);
+    await updateCrystals(0);
   };
+
+  if (loading) return <div className="p-4 text-center">Загрузка баланса...</div>;
 
   return (
     <div className="p-4">
