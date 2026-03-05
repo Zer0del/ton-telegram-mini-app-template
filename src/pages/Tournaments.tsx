@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useCrystals } from '../hooks/useCrystals';
 
 const tournamentsData = [
   {
@@ -82,6 +83,8 @@ export function Tournaments() {
   const [prediction, setPrediction] = useState<string[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
 
+  const { crystals, updateCrystals } = useCrystals(); // ← используем общий хук
+
   // Загрузка сохранённых ставок
   useEffect(() => {
     const saved = localStorage.getItem('userBets');
@@ -123,17 +126,14 @@ export function Tournaments() {
       return;
     }
 
-    // === НОВАЯ ЛОГИКА: списание баланса ===
-    const currentBalance = parseInt(localStorage.getItem('cs2_crystals') || '500');
-    if (currentBalance < 100) {
+    // Проверка и списание баланса
+    if (crystals < 100) {
       alert('Недостаточно кристаликов! Нужно минимум 100 cryst.');
       return;
     }
 
-    // Списываем 100 cryst
-    const newBalance = currentBalance - 100;
-    localStorage.setItem('cs2_crystals', newBalance.toString());
-    // =======================================
+    const newBalance = crystals - 100;
+    updateCrystals(newBalance); // ← баланс сразу обновится везде
 
     const newBet: Bet = {
       id: Date.now(),
@@ -147,7 +147,7 @@ export function Tournaments() {
     const newBets = [...bets, newBet];
     saveBets(newBets);
 
-    alert(`✅ Ставка 100 кристаликов принята! Баланс уменьшен.`);
+    alert(`✅ Ставка 100 кристаликов принята! Баланс: ${newBalance}`);
     setShowBetModal(false);
     setPrediction([]);
   };
