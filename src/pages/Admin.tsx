@@ -71,70 +71,70 @@ export function Admin() {
     setShowResultModal(true);
   };
 
-  const saveRealResult = async () => {
-    const maxPlaces = parseInt(selectedMode.replace('Top-', ''));
-    if (realResult.length !== maxPlaces) {
-      alert('Заполни все места!');
-      return;
-    }
-
-    // 1. Получаем все ставки этого режима
-    const { data: allBets } = await supabase
-      .from('bets')
-      .select('*')
-      .eq('tournament', selectedTournament)
-      .eq('mode', selectedMode);
-
-    // 2. Находим победителей (полное совпадение)
-    const winners = allBets?.filter(bet =>
-      bet.prediction.every((team: string, i: number) => team === realResult[i])
-    ) || [];
-
-    // 3. Получаем текущий банк
-    const { data: bankData } = await supabase
-      .from('tournament_banks')
-      .select('bank')
-      .eq('tournament', selectedTournament)
-      .eq('mode', selectedMode)
-      .single();
-
-    const bank = bankData?.bank || 1000;
-
-    if (winners.length > 0) {
-      const prize = Math.floor(bank / winners.length);
-
-      // 4. Раздаём призы каждому победителю
-      for (const winner of winners) {
-        await supabase
-          .from('user_balances')
-          .upsert({
-            telegram_id: winner.telegram_id,
-            crystals: (winner.crystals || 500) + prize
-          });
+    const saveRealResult = async () => {
+      const maxPlaces = parseInt(selectedMode.replace('Top-', ''));
+      if (realResult.length !== maxPlaces) {
+        alert('Заполни все места!');
+        return;
       }
 
-      alert(`✅ ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
-    } else {
-      alert('❌ Победителей нет. Банк остаётся.');
-    }
+      // 1. Получаем все ставки этого режима
+      const { data: allBets } = await supabase
+        .from('bets')
+        .select('*')
+        .eq('tournament', selectedTournament)
+        .eq('mode', selectedMode);
 
-    // 5. Удаляем банк режима
-    await supabase
-      .from('tournament_banks')
-      .delete()
-      .eq('tournament', selectedTournament)
-      .eq('mode', selectedMode);
+      // 2. Находим победителей (полное совпадение)
+      const winners = allBets?.filter(bet =>
+        bet.prediction.every((team: string, i: number) => team === realResult[i])
+      ) || [];
 
-    // 6. Удаляем все ставки этого режима
-    await supabase
-      .from('bets')
-      .delete()
-      .eq('tournament', selectedTournament)
-      .eq('mode', selectedMode);
+      // 3. Получаем банк
+      const { data: bankData } = await supabase
+        .from('tournament_banks')
+        .select('bank')
+        .eq('tournament', selectedTournament)
+        .eq('mode', selectedMode)
+        .single();
 
-    alert('Турнир завершён. Данные очищены.');
-    setShowResultModal(false);
-  };
+      const bank = bankData?.bank || 1000;
+
+      if (winners.length > 0) {
+        const prize = Math.floor(bank / winners.length);
+
+        // 4. Раздаём призы каждому победителю
+        for (const winner of winners) {
+          await supabase
+            .from('user_balances')
+            .upsert({
+              telegram_id: winner.telegram_id,
+              crystals: (winner.crystals || 500) + prize
+            });
+        }
+
+        alert(`✅ ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
+      } else {
+        alert('❌ Победителей нет. Банк остаётся.');
+      }
+
+      // 5. Удаляем банк режима
+      await supabase
+        .from('tournament_banks')
+        .delete()
+        .eq('tournament', selectedTournament)
+        .eq('mode', selectedMode);
+
+      // 6. Удаляем все ставки этого режима
+      await supabase
+        .from('bets')
+        .delete()
+        .eq('tournament', selectedTournament)
+        .eq('mode', selectedMode);
+
+      alert('Турнир завершён. Данные очищены.');
+      setShowResultModal(false);
+    };
 
   return (
     <div className="p-4">
