@@ -11,11 +11,13 @@ export function Home() {
     if (saved) setBalance(parseInt(saved));
   }, []);
 
-  const connectWallet = () => tonConnectUI.connectWallet();
+  const connectWallet = () => {
+    tonConnectUI.connectWallet();
+  };
 
   return (
     <div className="p-4">
-      {/* Логотип + Connect */}
+      {/* Логотип и Connect Wallet — только один раз вверху */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <img src="https://www.hltv.org/img/static/cs2_logo.png" alt="CS2" className="w-12 h-12" />
@@ -27,13 +29,13 @@ export function Home() {
         </div>
         <button
           onClick={connectWallet}
-          className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-3xl font-medium text-sm"
+          className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-3xl font-medium text-sm flex items-center gap-2"
         >
           Connect Wallet
         </button>
       </div>
 
-      {/* Баланс */}
+      {/* Карточка баланса */}
       <div className="bg-gradient-to-br from-zinc-900 to-black border border-zinc-700 rounded-3xl p-8 text-center mb-8">
         <div className="flex justify-center mb-4">
           <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center text-5xl">💎</div>
@@ -42,7 +44,7 @@ export function Home() {
         <div className="text-xl text-zinc-400">Кристалики</div>
       </div>
 
-      {/* Кнопки */}
+      {/* Две большие кнопки */}
       <div className="grid grid-cols-2 gap-4">
         <Link
           to="/wallet"
