@@ -1,10 +1,69 @@
 import { useState, useEffect } from 'react';
 
 const tournamentsData = [
-  { name: "BLAST Open Rotterdam 2026", date: "18–29 марта", prize: "$1 100 000", status: "LIVE", color: "bg-red-500",
-    teams: [{ name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" }, /* ... все 12 команд как раньше */ ] },
-  { name: "ESL Pro League Season 23 Finals", date: "13–15 марта", prize: "$275 000", status: "Скоро", color: "bg-yellow-500", teams: [/* те же команды */] },
-  { name: "PGL Bucharest 2026", date: "3–11 апреля", prize: "$1 250 000", status: "Скоро", color: "bg-yellow-500", teams: [/* те же команды */] }
+  {
+    name: "BLAST Open Rotterdam 2026",
+    date: "18–29 марта",
+    prize: "$1 100 000",
+    status: "LIVE",
+    color: "bg-red-500",
+    teams: [
+      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
+      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
+      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
+      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
+      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
+      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
+    ]
+  },
+  {
+    name: "ESL Pro League Season 23 Finals",
+    date: "13–15 марта",
+    prize: "$275 000",
+    status: "Скоро",
+    color: "bg-yellow-500",
+    teams: [
+      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
+      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
+      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
+      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
+      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
+      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
+    ]
+  },
+  {
+    name: "PGL Bucharest 2026",
+    date: "3–11 апреля",
+    prize: "$1 250 000",
+    status: "Скоро",
+    color: "bg-yellow-500",
+    teams: [
+      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
+      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
+      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
+      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
+      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
+      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
+    ]
+  }
 ];
 
 interface Bet {
@@ -23,13 +82,11 @@ export function Tournaments() {
   const [prediction, setPrediction] = useState<string[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
 
-  // Загружаем ставки из localStorage
   useEffect(() => {
     const saved = localStorage.getItem('userBets');
     if (saved) setBets(JSON.parse(saved));
   }, []);
 
-  // Сохраняем ставки
   const saveBets = (newBets: Bet[]) => {
     localStorage.setItem('userBets', JSON.stringify(newBets));
     setBets(newBets);
@@ -64,7 +121,6 @@ export function Tournaments() {
       alert('Выбери все места!');
       return;
     }
-
     const newBet: Bet = {
       id: Date.now(),
       tournament: currentTournament,
@@ -73,10 +129,8 @@ export function Tournaments() {
       amount: 100,
       date: new Date().toLocaleDateString('ru-RU')
     };
-
     const newBets = [...bets, newBet];
     saveBets(newBets);
-
     alert(`Ставка 100 кристаликов принята!`);
     setShowBetModal(false);
     setPrediction([]);
@@ -115,7 +169,6 @@ export function Tournaments() {
           </div>
         ))}
 
-        {/* МОДАЛКА */}
         {showBetModal && currentTournamentData && (
           <div className="fixed inset-0 bg-black/95 z-50 flex items-end safe-area overflow-hidden">
             <div className="bg-[#171717] w-full max-h-[88vh] rounded-t-3xl overflow-hidden flex flex-col">
@@ -123,7 +176,6 @@ export function Tournaments() {
                 <h2 className="text-2xl font-bold text-white">Составь свой {currentMode}</h2>
                 <p className="text-zinc-400 mt-1">{currentTournament}</p>
               </div>
-
               <div className="flex-1 overflow-y-auto p-5 space-y-6 main-content pb-40">
                 <h3 className="text-green-400 font-semibold text-lg">МОЙ ТОП {currentMode.replace('Top-', '')}</h3>
                 <div className="space-y-3">
@@ -137,7 +189,6 @@ export function Tournaments() {
                     </div>
                   ))}
                 </div>
-
                 <h3 className="text-green-400 font-semibold text-lg mt-8">КОМАНДЫ ТУРНИРА</h3>
                 <div className="grid grid-cols-1 gap-3">
                   {currentTournamentData.teams
@@ -151,7 +202,6 @@ export function Tournaments() {
                     ))}
                 </div>
               </div>
-
               <div className="p-4 border-t border-zinc-800 flex gap-3 bg-[#171717] pb-8">
                 <button onClick={() => setShowBetModal(false)} className="flex-1 py-4 bg-red-500 rounded-2xl text-lg font-medium">Отмена</button>
                 <button onClick={handleConfirmBet} className="flex-1 py-4 bg-green-500 rounded-2xl text-lg font-medium text-black">Подтвердить (100 cryst)</button>
