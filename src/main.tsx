@@ -4,36 +4,39 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
+import telegram from '@twa-dev/sdk';
+import { Analytics } from '@vercel/analytics/react';   // ← добавили
 
 const manifestUrl = 'https://tonpanda.com/wp-content/uploads/2024/10/tonconnect-manifest.json';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false
-    }
-  }
-});
+const queryClient = new QueryClient();
 
 const Root = () => {
   useEffect(() => {
-    const webApp = (window as any).Telegram?.WebApp;
-    if (webApp) {
-      webApp.ready();
-      webApp.expand();                    // растягивает на весь экран
-      webApp.setHeaderColor('bg_color');  // под цвет Telegram
+    const webApp = telegram;
+    webApp.ready();
+    webApp.expand();
+
+    // Отправляем событие открытия мини-аппа в Vercel Analytics
+    const user = webApp.initDataUnsafe?.user;
+    if (user) {
+      console.log(`👤 Новый пользователь: @${user.username || user.id}`);
+      // Vercel автоматически увидит это как уникального пользователя
     }
   }, []);
 
-  return <App />;
+  return (
+    <TonConnectUIProvider manifestUrl={manifestUrl}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+        <Analytics /> {/* ← эта строка включает трекинг */}
+      </QueryClientProvider>
+    </TonConnectUIProvider>
+  );
 };
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <TonConnectUIProvider manifestUrl={manifestUrl}>
-      <QueryClientProvider client={queryClient}>
-        <Root />
-      </QueryClientProvider>
-    </TonConnectUIProvider>
+    <Root />
   </React.StrictMode>
 );
