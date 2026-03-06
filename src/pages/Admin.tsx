@@ -171,12 +171,20 @@ export function Admin() {
       prize: newTournament.prize || '$0',
       status: 'Скоро',
       color: 'bg-yellow-500',
-      teams: tournamentsData[0].teams // копируем команды от первого турнира
+      teams: tournamentsData[0].teams // временно копируем команды от первого турнира
     };
 
-    await supabase.from('tournaments').insert(newData);
+    const { error } = await supabase
+      .from('tournaments')
+      .insert(newData);
 
-    alert('Новый турнир добавлен!');
+    if (error) {
+      alert('Ошибка при добавлении турнира');
+      console.error(error);
+      return;
+    }
+
+    alert('Новый турнир успешно добавлен!');
     setShowAddModal(false);
     setNewTournament({ name: '', date: '', prize: '' });
   };
