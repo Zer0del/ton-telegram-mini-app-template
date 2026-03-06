@@ -78,30 +78,33 @@ export function Admin() {
     );
   }
 
-  const finishMode = (tournament: string, mode: string) => {
+  const finishTournament = (tournament: string) => {
     setSelectedTournament(tournament);
-    setSelectedMode(mode);
     setRealResult([]);
     setShowResultModal(true);
   };
 
-    const saveRealResult = async () => {
-      const maxPlaces = parseInt(selectedMode.replace('Top-', ''));
-      if (realResult.length !== maxPlaces) {
-        alert('Заполни все места!');
-        return;
-      }
+  const saveRealResult = async () => {
+    if (realResult.length !== 5) {
+      alert('Заполни все 5 мест!');
+      return;
+    }
+
+    const modes = ['Top-1', 'Top-3', 'Top-5'];
+
+    for (const mode of modes) {
+      const requiredMatches = parseInt(mode.replace('Top-', ''));
 
       // 1. Получаем все ставки этого режима
       const { data: allBets } = await supabase
         .from('bets')
         .select('*')
         .eq('tournament', selectedTournament)
-        .eq('mode', selectedMode);
+        .eq('mode', mode);
 
-      // 2. Находим победителей (полное совпадение)
+      // 2. Находим победителей (полное совпадение нужного количества мест)
       const winners = allBets?.filter(bet =>
-        bet.prediction.every((team: string, i: number) => team === realResult[i])
+        bet.prediction.slice(0, requiredMatches).every((team: string, i: number) => team === realResult[i])
       ) || [];
 
       // 3. Получаем банк
@@ -109,55 +112,79 @@ export function Admin() {
         .from('tournament_banks')
         .select('bank')
         .eq('tournament', selectedTournament)
-        .eq('mode', selectedMode)
-        .single();
+        .eq('mode', mode)
+        .maybeSingle();
 
       const bank = bankData?.bank || 1000;
 
-    if (winners.length > 0) {
-      const prize = Math.floor(bank / winners.length);
+      if (winners.length > 0) {
+        const prize = Math.floor(bank / winners.length);
 
-      // 4. Раздаём призы каждому победителю
-      for (const winner of winners) {
-        // Сначала получаем текущий баланс пользователя
-        const { data: user } = await supabase
-          .from('user_balances')
-          .select('crystals')
-          .eq('telegram_id', winner.telegram_id)
-          .single();
+        for (const winner of winners) {
+          const { data: user } = await supabase
+            .from('user_balances')
+            .select('crystals')
+            .eq('telegram_id', winner.telegram_id)
+            .single();
 
-        const currentCrystals = user?.crystals || 500;
-        const newCrystals = currentCrystals + prize;
+          const currentCrystals = user?.crystals || 500;
+          await supabase
+            .from('user_balances')
+            .upsert({
+              telegram_id: winner.telegram_id,
+              crystals: currentCrystals + prize
+            });
+        }
+        alert(`✅ ${mode}: ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
+      } else {
+        // Перенос половины банка на следующий турнир этого режима
+        const nextTournament = tournaments.find(t => t.name !== selectedTournament);
+        if (nextTournament) {
+          const { data: nextBank } = await supabase
+            .from('tournament_banks')
+            .select('bank')
+            .eq('tournament', nextTournament.name)
+            .eq('mode', mode)
+            .maybeSingle();
 
-        await supabase
-          .from('user_balances')
-          .upsert({
-            telegram_id: winner.telegram_id,
-            crystals: newCrystals
-          });
+          const nextBankAmount = (nextBank?.bank || 1000) + Math.floor(bank / 2);
+          await supabase
+            .from('tournament_banks')
+            .upsert({ tournament: nextTournament.name, mode, bank: nextBankAmount });
+          alert(`❌ ${mode}: победителей нет. Половина банка (${Math.floor(bank / 2)} cryst) перенесена на следующий турнир.`);
+        }
       }
 
-      alert(`✅ ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
-    } else {
-      alert('❌ Победителей нет. Банк остаётся.');
-    }
-      // 5. Удаляем банк режима
+      // Удаляем банк и ставки этого режима
       await supabase
         .from('tournament_banks')
         .delete()
         .eq('tournament', selectedTournament)
-        .eq('mode', selectedMode);
+        .eq('mode', mode);
 
-      // 6. Удаляем все ставки этого режима
       await supabase
         .from('bets')
         .delete()
         .eq('tournament', selectedTournament)
-        .eq('mode', selectedMode);
+        .eq('mode', mode);
+    }
 
-      alert('Турнир завершён. Данные очищены.');
-      setShowResultModal(false);
-    };
+    // 4. Полностью удаляем турнир из списка
+    await supabase
+      .from('tournaments')
+      .delete()
+      .eq('name', selectedTournament);
+
+    alert('Турнир полностью завершён и удалён из всех вкладок!');
+    setShowResultModal(false);
+
+    // Обновляем список турниров
+    const { data } = await supabase
+      .from('tournaments')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (data) setTournaments(data);
+  };
 
   const addNewTournament = async () => {
     if (!newTournament.name) {
@@ -213,15 +240,12 @@ export function Admin() {
       {tournaments.map((t, i) => (
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
           <h2 className="text-xl font-bold mb-4">{t.name}</h2>
-          {['Top-1', 'Top-3', 'Top-5'].map((mode) => (
-            <button
-              key={mode}
-              onClick={() => finishMode(t.name, mode)}
-              className="w-full bg-red-600 hover:bg-red-700 py-6 rounded-2xl mb-3 text-lg font-medium"
-            >
-              Завершить {mode}
-            </button>
-          ))}
+          <button
+            onClick={() => finishTournament(t.name)}
+            className="w-full bg-red-600 hover:bg-red-700 py-6 rounded-2xl text-lg font-medium"
+          >
+            Завершить турнир
+          </button>
         </div>
       ))}
 
@@ -266,7 +290,7 @@ export function Admin() {
           <div className="bg-[#171717] w-full max-w-md rounded-3xl p-6">
             <h3 className="text-xl font-bold mb-6 text-center">Реальный результат — {selectedMode}</h3>
 
-            {Array.from({ length: parseInt(selectedMode.replace('Top-', '')) }).map((_, i) => (
+            {Array.from({ length: 5 }).map((_, i) => (
               <select
                 key={i}
                 value={realResult[i] || ''}
