@@ -3,8 +3,9 @@ import { useCrystals } from '../hooks/useCrystals';
 
 export function Wallet() {
   const [tonConnectUI] = useTonConnectUI();
-  const { crystals, updateCrystals, loading } = useCrystals();
+  const { crystals, updateCrystals } = useCrystals();
 
+  // useEffect с localStorage полностью удалён — теперь всё через Supabase + TanStack Query
   const buyWithTON = async () => {
     const newBalance = crystals + 100;
     await updateCrystals(newBalance);
