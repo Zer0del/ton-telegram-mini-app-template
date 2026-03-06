@@ -57,6 +57,17 @@ export function Admin() {
     if (userId === 636499517) setIsAdmin(true);
   }, []);
 
+  // Загрузка динамического списка турниров из Supabase
+  useEffect(() => {
+    supabase
+      .from('tournaments')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setTournaments(data);
+      });
+  }, []);
+
   useEffect(() => {
     // Загрузка динамического списка турниров из Supabase
     supabase
