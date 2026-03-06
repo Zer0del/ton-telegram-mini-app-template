@@ -67,6 +67,9 @@ export function Admin() {
         if (data) setTournaments(data);
       });
   }, []);
+  
+  // Fallback на локальные турниры, если Supabase пустой
+  const displayTournaments = tournaments.length > 0 ? tournaments : tournamentsData;
 
   if (!isAdmin) {
     return (
@@ -237,7 +240,7 @@ export function Admin() {
         + Добавить новый турнир
       </button>
 
-      {tournaments.map((t, i) => (
+      {displayTournaments.map((t, i) => (
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
           <h2 className="text-xl font-bold mb-4">{t.name}</h2>
           <button
@@ -288,7 +291,7 @@ export function Admin() {
       {showResultModal && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
           <div className="bg-[#171717] w-full max-w-md rounded-3xl p-6">
-            <h3 className="text-xl font-bold mb-6 text-center">Реальный результат — {selectedMode}</h3>
+            <h3 className="text-xl font-bold mb-6 text-center">Реальный результат — {selectedTournament}</h3>
 
             {Array.from({ length: 5 }).map((_, i) => (
               <select
