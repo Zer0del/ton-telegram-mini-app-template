@@ -8,19 +8,19 @@ export const useBank = (tournament: string, mode: string) => {
   useEffect(() => {
     // Загрузка текущего банка
     const fetchBank = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('tournament_banks')
         .select('bank')
         .eq('tournament', tournament)
         .eq('mode', mode)
-        .single();
+        .maybeSingle();  // ← фиксит все 406
 
-      if (data) setBank(data.bank);
+      if (error && error.code !== 'PGRST116') console.error(error);
+      setBank(data?.bank ?? 1000);
       setLoading(false);
     };
 
     fetchBank();
-
     // Реалтайм-подписка — обновляется у всех пользователей мгновенно
     const channel = supabase
       .channel(`bank-${tournament}-${mode}`)
