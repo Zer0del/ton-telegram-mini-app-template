@@ -149,6 +149,14 @@ export function Admin() {
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Админ-панель</h1>
 
+      {/* Кнопка добавления нового турнира */}
+      <button 
+        onClick={() => alert('Модалка добавления турнира (добавим в следующем шаге)')}
+        className="w-full bg-green-500 text-black py-4 rounded-2xl font-medium mb-8"
+      >
+        + Добавить новый турнир
+      </button>
+
       {tournamentsData.map((t, i) => (
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
           <h2 className="text-xl font-bold mb-4">{t.name}</h2>
