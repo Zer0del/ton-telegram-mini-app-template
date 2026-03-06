@@ -206,6 +206,9 @@ export function Tournaments() {
               mode={mode} 
             />
           ))}
+        </div>
+      ))}   {/* ← Закрываем .map(tournamentsData) */}
+
       {showBetModal && currentTournamentData && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-end safe-area overflow-hidden">
           <div className="bg-[#171717] w-full max-h-[88vh] rounded-t-3xl overflow-hidden flex flex-col">
