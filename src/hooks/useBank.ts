@@ -44,13 +44,14 @@ export const useBank = (tournament: string, mode: string) => {
   }, [tournament, mode]);
 
   const addToBank = async (amount: number) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('tournament_banks')
       .select('bank')
       .eq('tournament', tournament)
       .eq('mode', mode)
-      .single();
+      .maybeSingle();  // ← фиксит все 406
 
+    if (error && error.code !== 'PGRST116') console.error(error);
     const newBank = (data?.bank || 1000) + amount;
 
     await supabase
