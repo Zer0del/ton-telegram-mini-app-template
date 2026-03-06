@@ -200,9 +200,12 @@ export function Tournaments() {
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
           <h2 className="text-xl font-bold mb-3">{t.name}</h2>
           {['Top-1', 'Top-3', 'Top-5'].map((mode) => (
-            <ModeButton key={mode} tournamentName={t.name} mode={mode} />
+            <ModeButton 
+              key={mode} 
+              tournamentName={t.name} 
+              mode={mode} 
+            />
           ))}
-
       {showBetModal && currentTournamentData && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-end safe-area overflow-hidden">
           <div className="bg-[#171717] w-full max-h-[88vh] rounded-t-3xl overflow-hidden flex flex-col">
