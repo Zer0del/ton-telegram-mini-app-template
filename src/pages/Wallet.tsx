@@ -7,17 +7,18 @@ export function Wallet() {
 
   // useEffect с localStorage полностью удалён — теперь всё через Supabase + TanStack Query
   const buyWithTON = async () => {
-    const newBalance = crystals + 100;
-    await updateCrystals(newBalance);
-    alert('✅ +100 cryst зачислено!');
+    // заглушка для покупки
+    const newAmount = crystals + 100;
+    updateCrystals(newAmount);
+    alert('Plus 100 cryst зачислено!');
   };
 
   const withdrawToTON = async () => {
     if (crystals < 100) return alert('Недостаточно кристаликов');
     const address = prompt('Введи TON-адрес для вывода:');
     if (!address) return;
-    alert(`✅ Вывод ${crystals} cryst отправлен!`);
-    await updateCrystals(0);
+    alert(`Вывод ${crystals} cryst на ${address} отправлен!`);
+    updateCrystals(0);  // остаток = 0 (как было в старой заглушке)
   };
 
   if (loading) return <div className="p-4 text-center">Загрузка баланса...</div>;
