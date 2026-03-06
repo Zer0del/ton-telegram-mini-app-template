@@ -167,9 +167,29 @@ export function Tournaments() {
 
     await supabase.from('bets').insert(newBet);
 
-    alert(`✅ Ставка принята! Банк вырос.`);
+    alert(`Ставка принята! Банк вырос.`);
     setShowBetModal(false);
     setPrediction([]);
+  };
+
+  // === ВНУТРЕННИЙ КОМПОНЕНТ ДЛЯ БАНКА (решает нарушение хуков) ===
+  const ModeButton = ({ tournamentName, mode }: { tournamentName: string; mode: string }) => {
+    const { bank } = useBank(tournamentName, mode);  // теперь хук на топ-уровне
+    const alreadyBet = hasBet(tournamentName, mode);
+
+    return (
+      <button
+        onClick={() => !alreadyBet && openBetModal(tournamentName, mode)}
+        disabled={alreadyBet}
+        className={`w-full py-7 rounded-3xl mt-3 text-lg font-medium transition-all ${
+          alreadyBet 
+            ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed' 
+            : 'bg-zinc-800 hover:bg-zinc-700 active:scale-[0.97]'
+        }`}
+      >
+        {mode} • Банк: {bank} cryst {alreadyBet && '(ставка сделана)'}
+      </button>
+    );
   };
 
   return (
@@ -179,27 +199,9 @@ export function Tournaments() {
       {tournamentsData.map((t, i) => (
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
           <h2 className="text-xl font-bold mb-3">{t.name}</h2>
-          {['Top-1', 'Top-3', 'Top-5'].map((mode, idx) => {
-            const alreadyBet = hasBet(t.name, mode);
-            const currentBank = useBank(t.name, mode).bank;
-
-            return (
-              <button
-                key={idx}
-                onClick={() => !alreadyBet && openBetModal(t.name, mode)}
-                disabled={alreadyBet}
-                className={`w-full py-7 rounded-3xl mt-3 text-lg font-medium transition-all ${
-                  alreadyBet 
-                    ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed' 
-                    : 'bg-zinc-800 hover:bg-zinc-700 active:scale-[0.97]'
-                }`}
-              >
-                {mode} • Банк: {currentBank} cryst {alreadyBet && '(ставка сделана)'}
-              </button>
-            );
-          })}
-        </div>
-      ))}
+          {['Top-1', 'Top-3', 'Top-5'].map((mode) => (
+            <ModeButton key={mode} tournamentName={t.name} mode={mode} />
+          ))}
 
       {showBetModal && currentTournamentData && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-end safe-area overflow-hidden">
