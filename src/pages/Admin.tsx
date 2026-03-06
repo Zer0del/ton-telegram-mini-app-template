@@ -56,18 +56,7 @@ export function Admin() {
     const userId = webApp?.initDataUnsafe?.user?.id;
     if (userId === 636499517) setIsAdmin(true);
   }, []);
-
-  // Загрузка динамического списка турниров из Supabase
-  useEffect(() => {
-    supabase
-      .from('tournaments')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) setTournaments(data);
-      });
-  }, []);
-
+  
   useEffect(() => {
     // Загрузка динамического списка турниров из Supabase
     supabase
@@ -256,7 +245,32 @@ export function Admin() {
 
       {showResultModal && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
-          {/* модалка завершения — оставляем как была */}
+          <div className="bg-[#171717] w-full max-w-md rounded-3xl p-6">
+            <h3 className="text-xl font-bold mb-6 text-center">Реальный результат — {selectedMode}</h3>
+
+            {Array.from({ length: parseInt(selectedMode.replace('Top-', '')) }).map((_, i) => (
+              <select
+                key={i}
+                value={realResult[i] || ''}
+                onChange={(e) => {
+                  const newRes = [...realResult];
+                  newRes[i] = e.target.value;
+                  setRealResult(newRes);
+                }}
+                className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
+              >
+                <option value="">Место {i + 1} — выбери команду</option>
+                {tournamentsData.find(t => t.name === selectedTournament)?.teams.map(team => (
+                  <option key={team.name} value={team.name}>{team.name}</option>
+                ))}
+              </select>
+            ))}
+
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setShowResultModal(false)} className="flex-1 py-4 bg-zinc-700 rounded-2xl">Отмена</button>
+              <button onClick={saveRealResult} className="flex-1 py-4 bg-green-500 text-black rounded-2xl font-medium">Завершить и раздать призы</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
