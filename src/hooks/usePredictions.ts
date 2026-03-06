@@ -1,6 +1,7 @@
-import { useLocalStorage } from 'use-local-storage';
+import { useState } from 'react';
 
 export const usePredictions = () => {
-  const [predictions, setPredictions] = useLocalStorage<any[]>('cs2_predictions', []);
+  const [predictions, setPredictions] = useState<any[]>([]);
+
   return { predictions, setPredictions };
 };
