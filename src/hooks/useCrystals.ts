@@ -5,7 +5,7 @@ export const useCrystals = () => {
   const queryClient = useQueryClient();
   const telegramId = (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id || 0;
 
-  // === ЗАГРУЗКА БАЛАНСА ИЗ SUPABASE ===
+  // === ЗАГРУЗКА БАЛАНСА ИЗ SUPABASE (замена localStorage) ===
   const { data: crystals = 500 } = useQuery({
     queryKey: ['userCrystals', telegramId],
     queryFn: async () => {
