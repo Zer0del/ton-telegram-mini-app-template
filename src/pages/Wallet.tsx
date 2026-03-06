@@ -21,8 +21,6 @@ export function Wallet() {
     updateCrystals(0);  // остаток = 0 (как было в старой заглушке)
   };
 
-  if (loading) return <div className="p-4 text-center">Загрузка баланса...</div>;
-
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-8 text-center">💎 Кошелёк</h1>
