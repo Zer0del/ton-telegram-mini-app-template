@@ -158,6 +158,28 @@ export function Admin() {
       setShowResultModal(false);
     };
 
+  const addNewTournament = async () => {
+    if (!newTournament.name) {
+      alert('Введите название турнира!');
+      return;
+    }
+
+    const newData = {
+      name: newTournament.name,
+      date: newTournament.date || 'Дата не указана',
+      prize: newTournament.prize || '$0',
+      status: 'Скоро',
+      color: 'bg-yellow-500',
+      teams: tournamentsData[0].teams // копируем команды от первого турнира
+    };
+
+    await supabase.from('tournaments').insert(newData);
+
+    alert('Новый турнир добавлен!');
+    setShowAddModal(false);
+    setNewTournament({ name: '', date: '', prize: '' });
+  };
+
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Админ-панель</h1>
