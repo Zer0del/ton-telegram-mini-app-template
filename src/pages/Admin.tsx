@@ -187,6 +187,15 @@ export function Admin() {
     alert('Новый турнир успешно добавлен!');
     setShowAddModal(false);
     setNewTournament({ name: '', date: '', prize: '' });
+
+    // Перезагружаем список турниров
+    supabase
+      .from('tournaments')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setTournaments(data);
+      });
   };
 
   return (
