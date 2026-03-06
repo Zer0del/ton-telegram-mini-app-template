@@ -5,7 +5,7 @@ export const useCrystals = () => {
   const queryClient = useQueryClient();
   const telegramId = (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id || 0;
 
-  // === ЗАГРУЗКА БАЛАНСА ИЗ SUPABASE (замена useState + localStorage) ===
+  // === ЗАГРУЗКА БАЛАНСА ИЗ SUPABASE ===
   const { data: crystals = 500 } = useQuery({
     queryKey: ['userCrystals', telegramId],
     queryFn: async () => {
@@ -16,13 +16,13 @@ export const useCrystals = () => {
         .eq('telegram_id', telegramId)
         .single();
 
-      if (error && error.code !== 'PGRST116') console.error(error); // PGRST116 = no rows
+      if (error && error.code !== 'PGRST116') console.error(error);
       return data?.crystals ?? 500;
     },
-    staleTime: 1000 * 60 * 5, // 5 минут
+    staleTime: 1000 * 60 * 5,
   });
 
-  // === ОБНОВЛЕНИЕ БАЛАНСА (upsert + optimistic update) ===
+  // === ОБНОВЛЕНИЕ БАЛАНСА ===
   const mutation = useMutation({
     mutationFn: async (newAmount: number) => {
       if (!telegramId) return;
@@ -37,13 +37,12 @@ export const useCrystals = () => {
   });
 
   const updateCrystals = (newAmount: number) => {
-    // optimistic update — чтобы Tournaments.tsx работал как раньше (синхронно)
     queryClient.setQueryData(['userCrystals', telegramId], newAmount);
     mutation.mutate(newAmount);
   };
 
   const resetCrystals = () => {
-    updateCrystals(500); // как было в старом коде
+    updateCrystals(500);
   };
 
   return { crystals, updateCrystals, resetCrystals };
