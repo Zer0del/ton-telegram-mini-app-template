@@ -149,9 +149,9 @@ export function Admin() {
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">Админ-панель</h1>
 
-      {/* Кнопка добавления нового турнира */}
+{/* Кнопка добавления нового турнира */}
       <button 
-        onClick={() => alert('Модалка добавления турнира (добавим в следующем шаге)')}
+        onClick={() => setShowAddModal(true)}
         className="w-full bg-green-500 text-black py-4 rounded-2xl font-medium mb-8"
       >
         + Добавить новый турнир
@@ -204,4 +204,39 @@ export function Admin() {
       )}
     </div>
   );
+{/* Модалка добавления турнира */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#171717] w-full max-w-md rounded-3xl p-6">
+            <h3 className="text-xl font-bold mb-6 text-center">Новый турнир</h3>
+            
+            <input 
+              type="text" 
+              placeholder="Название турнира" 
+              className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
+              value={newTournament.name}
+              onChange={(e) => setNewTournament({...newTournament, name: e.target.value})}
+            />
+            <input 
+              type="text" 
+              placeholder="Дата (18–29 марта)" 
+              className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
+              value={newTournament.date}
+              onChange={(e) => setNewTournament({...newTournament, date: e.target.value})}
+            />
+            <input 
+              type="text" 
+              placeholder="Призовой фонд ($1 100 000)" 
+              className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
+              value={newTournament.prize}
+              onChange={(e) => setNewTournament({...newTournament, prize: e.target.value})}
+            />
+
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setShowAddModal(false)} className="flex-1 py-4 bg-zinc-700 rounded-2xl">Отмена</button>
+              <button onClick={addNewTournament} className="flex-1 py-4 bg-green-500 text-black rounded-2xl font-medium">Добавить турнир</button>
+            </div>
+          </div>
+        </div>
+      )}
 }
