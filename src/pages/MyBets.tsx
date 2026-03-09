@@ -14,6 +14,7 @@ export function MyBets() {
   const [bets, setBets] = useState<Bet[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Загрузка ставок + автоматическое обновление после завершения турнира в Admin
   useEffect(() => {
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
@@ -23,15 +24,23 @@ export function MyBets() {
       return;
     }
 
-    supabase
-      .from('bets')
-      .select('*')
-      .eq('telegram_id', telegramId)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) setBets(data);
-        setLoading(false);
-      });
+    const loadBets = () => {
+      supabase
+        .from('bets')
+        .select('*')
+        .eq('telegram_id', telegramId)
+        .order('created_at', { ascending: false })
+        .then(({ data }) => {
+          if (data) setBets(data);
+          setLoading(false);
+        });
+    };
+
+    loadBets();
+
+    // Автообновление каждые 2 секунды — ставки исчезают мгновенно
+    const interval = setInterval(loadBets, 2000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
