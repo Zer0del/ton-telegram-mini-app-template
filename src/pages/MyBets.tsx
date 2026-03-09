@@ -49,6 +49,29 @@ export function MyBets() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-6">Мои ставки</h1>
 
+      {/* Кнопка очистки старых ставок */}
+      {bets.length > 0 && (
+        <button 
+          onClick={async () => {
+            if (!confirm('Удалить ВСЕ ставки навсегда? Это действие нельзя отменить.')) return;
+            
+            const webApp = (window as any).Telegram?.WebApp;
+            const telegramId = webApp?.initDataUnsafe?.user?.id;
+            
+            await supabase
+              .from('bets')
+              .delete()
+              .eq('telegram_id', telegramId);
+            
+            setBets([]);
+            alert('✅ Все ставки очищены');
+          }}
+          className="mb-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-2xl transition-all"
+        >
+          🗑 Очистить все ставки
+        </button>
+      )}
+
       {bets.length === 0 && (
         <div className="text-center py-20 text-zinc-400">
           Пока нет ставок<br />Сделай первую на странице «Турниры»
