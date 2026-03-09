@@ -3,72 +3,6 @@ import { useCrystals } from '../hooks/useCrystals';
 import { useBank } from '../hooks/useBank';
 import { supabase } from '../main';
 
-const tournamentsData = [
-  {
-    name: "BLAST Open Rotterdam 2026",
-    date: "18–29 марта",
-    prize: "$1 100 000",
-    status: "LIVE",
-    color: "bg-red-500",
-    teams: [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
-      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
-      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
-      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
-      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
-      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
-    ]
-  },
-  {
-    name: "ESL Pro League Season 23 Finals",
-    date: "13–15 марта",
-    prize: "$275 000",
-    status: "Скоро",
-    color: "bg-yellow-500",
-    teams: [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
-      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
-      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
-      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
-      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
-      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
-    ]
-  },
-  {
-    name: "PGL Bucharest 2026",
-    date: "3–11 апреля",
-    prize: "$1 250 000",
-    status: "Скоро",
-    color: "bg-yellow-500",
-    teams: [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
-      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
-      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
-      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
-      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
-      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
-    ]
-  }
-];
-
 interface Bet {
   id: number;
   tournament: string;
@@ -134,7 +68,7 @@ export function Tournaments() {
     setShowBetModal(true);
   };
 
-  const currentTournamentData = tournamentsData.find(t => t.name === currentTournament);
+  const currentTournamentData = tournaments.find(t => t.name === currentTournament);
 
   const addTeam = (teamName: string) => {
     const max = parseInt(currentMode.replace('Top-', ''));
@@ -217,8 +151,7 @@ export function Tournaments() {
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Турниры CS2</h1>
 
-      {/* Fallback на локальные турниры, если Supabase пустой */}
-      {(tournaments.length > 0 ? tournaments : tournamentsData).map((t, i) => (
+      {tournaments.map((t, i) => (
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
           <h2 className="text-xl font-bold mb-3">{t.name}</h2>
           {['Top-1', 'Top-3', 'Top-5'].map((mode) => (
