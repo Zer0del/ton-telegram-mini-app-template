@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../main';
 
 interface Bet {
@@ -13,6 +13,7 @@ interface Bet {
 export function MyBets() {
   const [bets, setBets] = useState<Bet[]>([]);
   const [loading, setLoading] = useState(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Загрузка ставок + автоматическое обновление после завершения турнира в Admin
   useEffect(() => {
@@ -40,6 +41,7 @@ export function MyBets() {
 
     // Автообновление каждые 2 секунды — ставки исчезают мгновенно
     const interval = setInterval(loadBets, 2000);
+        intervalRef.current = interval;
     return () => clearInterval(interval);
   }, []);
 
@@ -49,12 +51,11 @@ export function MyBets() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-6">Мои ставки</h1>
 
-      {/* Кнопка очистки старых ставок — исправленная версия для Telegram */}
+      {/* Кнопка очистки старых ставок — теперь интервал останавливается */}
       {bets.length > 0 && (
         <button 
           onClick={async () => {
-            const confirmed = window.confirm('Удалить ВСЕ ставки навсегда? Это действие нельзя отменить.');
-            if (!confirmed) return;
+            if (!confirm('Удалить ВСЕ ставки навсегда? Это действие нельзя отменить.')) return;
 
             try {
               const webApp = (window as any).Telegram?.WebApp;
@@ -65,8 +66,6 @@ export function MyBets() {
                 return;
               }
 
-              console.log('🗑 Удаляем ставки для telegramId:', telegramId);
-
               const { error } = await supabase
                 .from('bets')
                 .delete()
@@ -74,13 +73,24 @@ export function MyBets() {
 
               if (error) throw error;
 
+              // Останавливаем автообновление навсегда после ручной очистки
+              if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+              }
+
               setBets([]);
-              alert('✅ Все ставки успешно очищены');
+              alert('✅ Все ставки успешно очищены и больше не вернутся');
             } catch (err) {
-              console.error('Ошибка очистки ставок:', err);
-              alert('❌ Ошибка при очистке. Посмотри консоль (F12)');
+              console.error('Ошибка очистки:', err);
+              alert('❌ Ошибка при очистке. Посмотри консоль');
             }
           }}
+          className="mb-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-2xl transition-all"
+        >
+          🗑 Очистить все ставки
+        </button>
+      )}
           className="mb-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-2xl transition-all"
         >
           🗑 Очистить все ставки
