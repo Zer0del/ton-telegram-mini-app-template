@@ -72,6 +72,23 @@ export function Admin() {
   
   // Fallback на локальные турниры, если Supabase пустой
   const displayTournaments = tournaments.length > 0 ? tournaments : tournamentsData;
+  
+    // Загружаем полный турнир с командами при открытии модалки
+  useEffect(() => {
+    if (selectedTournament) {
+      supabase
+        .from('tournaments')
+        .select('teams')
+        .eq('name', selectedTournament)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            // обновляем локальный массив, чтобы селекты сразу видели команды
+            setTournaments(prev => prev.map(t => t.name === selectedTournament ? { ...t, teams: data.teams } : t));
+          }
+        });
+    }
+  }, [selectedTournament]);
 
   if (!isAdmin) {
     return (
@@ -308,7 +325,7 @@ export function Admin() {
                 className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
               >
                 <option value="">Место {i + 1} — выбери команду</option>
-                {tournamentsData.find(t => t.name === selectedTournament)?.teams.map(team => (
+                {tournaments.find(t => t.name === selectedTournament)?.teams.map(team => (
                   <option key={team.name} value={team.name}>{team.name}</option>
                 ))}
               </select>
