@@ -68,18 +68,6 @@ const tournamentsData = [
     ]
   }
 ];
-// === ДИНАМИЧЕСКАЯ ЗАГРУЗКА ТУРНИРОВ ИЗ SUPABASE ===
-const [tournaments, setTournaments] = useState<any[]>([]);
-
-useEffect(() => {
-  supabase
-    .from('tournaments')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .then(({ data }) => {
-      if (data) setTournaments(data);
-    });
-}, []);
 
 interface Bet {
   id: number;
@@ -97,6 +85,19 @@ export function Tournaments() {
   const [prediction, setPrediction] = useState<string[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
 
+  // === ДИНАМИЧЕСКАЯ ЗАГРУЗКА ТУРНИРОВ ИЗ SUPABASE ===
+  const [tournaments, setTournaments] = useState<any[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('tournaments')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        if (data) setTournaments(data);
+      });
+  }, []);
+  
   const { crystals, updateCrystals } = useCrystals();
 
   // Общий банк турнира (реалтайм для всех пользователей)
@@ -217,7 +218,7 @@ export function Tournaments() {
       <h1 className="text-3xl font-bold mb-6">Турниры CS2</h1>
 
       {/* Fallback на локальные турниры, если Supabase пустой */}
-      {tournaments.length > 0 ? tournaments : tournamentsData}.map((t, i) => (
+      {(tournaments.length > 0 ? tournaments : tournamentsData).map((t, i) => (
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
           <h2 className="text-xl font-bold mb-3">{t.name}</h2>
           {['Top-1', 'Top-3', 'Top-5'].map((mode) => (
