@@ -51,7 +51,7 @@ export function MyBets() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-6">Мои ставки</h1>
 
-      {/* Кнопка очистки старых ставок — теперь интервал останавливается */}
+      {/* Кнопка очистки старых ставок — теперь интервал останавливается навсегда */}
       {bets.length > 0 && (
         <button 
           onClick={async () => {
@@ -73,7 +73,7 @@ export function MyBets() {
 
               if (error) throw error;
 
-              // Останавливаем автообновление навсегда после ручной очистки
+              // Останавливаем автообновление навсегда
               if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
@@ -86,11 +86,6 @@ export function MyBets() {
               alert('❌ Ошибка при очистке. Посмотри консоль');
             }
           }}
-          className="mb-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-2xl transition-all"
-        >
-          🗑 Очистить все ставки
-        </button>
-      )}
           className="mb-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-2xl transition-all"
         >
           🗑 Очистить все ставки
