@@ -68,6 +68,18 @@ const tournamentsData = [
     ]
   }
 ];
+// === ДИНАМИЧЕСКАЯ ЗАГРУЗКА ТУРНИРОВ ИЗ SUPABASE ===
+const [tournaments, setTournaments] = useState<any[]>([]);
+
+useEffect(() => {
+  supabase
+    .from('tournaments')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .then(({ data }) => {
+      if (data) setTournaments(data);
+    });
+}, []);
 
 interface Bet {
   id: number;
@@ -90,20 +102,28 @@ export function Tournaments() {
   // Общий банк турнира (реалтайм для всех пользователей)
   const { bank, addToBank } = useBank(currentTournament, currentMode);
 
-  // Загрузка ставок пользователя из Supabase
+  // Загрузка ставок пользователя из Supabase + обновление после завершения
   useEffect(() => {
-    const webApp = (window as any).Telegram?.WebApp;
-    const userId = webApp?.initDataUnsafe?.user?.id;
+    const loadBets = () => {
+      const webApp = (window as any).Telegram?.WebApp;
+      const userId = webApp?.initDataUnsafe?.user?.id;
 
-    if (userId) {
-      supabase
-        .from('bets')
-        .select('*')
-        .eq('telegram_id', userId)
-        .then(({ data }) => {
-          if (data) setBets(data);
-        });
-    }
+      if (userId) {
+        supabase
+          .from('bets')
+          .select('*')
+          .eq('telegram_id', userId)
+          .then(({ data }) => {
+            if (data) setBets(data);
+          });
+      }
+    };
+
+    loadBets();
+
+    // Перезагружаем ставки каждые 3 секунды (пока турнир активен)
+    const interval = setInterval(loadBets, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const openBetModal = (tournament: string, mode: string) => {
@@ -196,7 +216,8 @@ export function Tournaments() {
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Турниры CS2</h1>
 
-      {tournamentsData.map((t, i) => (
+      {/* Fallback на локальные турниры, если Supabase пустой */}
+      {tournaments.length > 0 ? tournaments : tournamentsData}.map((t, i) => (
         <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
           <h2 className="text-xl font-bold mb-3">{t.name}</h2>
           {['Top-1', 'Top-3', 'Top-5'].map((mode) => (
@@ -207,7 +228,7 @@ export function Tournaments() {
             />
           ))}
         </div>
-      ))}   {/* ← Закрываем .map(tournamentsData) */}
+      ))}
 
       {showBetModal && currentTournamentData && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-end safe-area overflow-hidden">
