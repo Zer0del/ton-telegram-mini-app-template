@@ -49,22 +49,37 @@ export function MyBets() {
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-6">Мои ставки</h1>
 
-      {/* Кнопка очистки старых ставок */}
+      {/* Кнопка очистки старых ставок — исправленная версия для Telegram */}
       {bets.length > 0 && (
         <button 
           onClick={async () => {
-            if (!confirm('Удалить ВСЕ ставки навсегда? Это действие нельзя отменить.')) return;
-            
-            const webApp = (window as any).Telegram?.WebApp;
-            const telegramId = webApp?.initDataUnsafe?.user?.id;
-            
-            await supabase
-              .from('bets')
-              .delete()
-              .eq('telegram_id', telegramId);
-            
-            setBets([]);
-            alert('✅ Все ставки очищены');
+            const confirmed = window.confirm('Удалить ВСЕ ставки навсегда? Это действие нельзя отменить.');
+            if (!confirmed) return;
+
+            try {
+              const webApp = (window as any).Telegram?.WebApp;
+              const telegramId = webApp?.initDataUnsafe?.user?.id;
+
+              if (!telegramId) {
+                alert('❌ Не удалось получить Telegram ID');
+                return;
+              }
+
+              console.log('🗑 Удаляем ставки для telegramId:', telegramId);
+
+              const { error } = await supabase
+                .from('bets')
+                .delete()
+                .eq('telegram_id', telegramId);
+
+              if (error) throw error;
+
+              setBets([]);
+              alert('✅ Все ставки успешно очищены');
+            } catch (err) {
+              console.error('Ошибка очистки ставок:', err);
+              alert('❌ Ошибка при очистке. Посмотри консоль (F12)');
+            }
           }}
           className="mb-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-2xl transition-all"
         >
