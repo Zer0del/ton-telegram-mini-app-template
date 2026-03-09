@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../main';
+import { useQueryClient } from '@tanstack/react-query';   // ← добавили
 
 const tournamentsData = [
   {
@@ -50,6 +51,7 @@ export function Admin() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTournament, setNewTournament] = useState({ name: '', date: '', prize: '' });
   const [tournaments, setTournaments] = useState<any[]>([]);
+  const queryClient = useQueryClient();   // ← добавили для обновления баланса
 
   useEffect(() => {
     const webApp = (window as any).Telegram?.WebApp;
@@ -95,98 +97,83 @@ export function Admin() {
 
     const modes = ['Top-1', 'Top-3', 'Top-5'];
 
-    for (const mode of modes) {
-      const requiredMatches = parseInt(mode.replace('Top-', ''));
+    try {
+      for (const mode of modes) {
+        const requiredMatches = parseInt(mode.replace('Top-', ''));
 
-      // 1. Получаем все ставки этого режима
-      const { data: allBets } = await supabase
-        .from('bets')
-        .select('*')
-        .eq('tournament', selectedTournament)
-        .eq('mode', mode);
+        const { data: allBets } = await supabase
+          .from('bets')
+          .select('*')
+          .eq('tournament', selectedTournament)
+          .eq('mode', mode);
 
-      // 2. Находим победителей (полное совпадение нужного количества мест)
-      const winners = allBets?.filter(bet =>
-        bet.prediction.slice(0, requiredMatches).every((team: string, i: number) => team === realResult[i])
-      ) || [];
+        const winners = allBets?.filter(bet =>
+          bet.prediction.slice(0, requiredMatches).every((team: string, i: number) => team === realResult[i])
+        ) || [];
 
-      // 3. Получаем банк
-      const { data: bankData } = await supabase
-        .from('tournament_banks')
-        .select('bank')
-        .eq('tournament', selectedTournament)
-        .eq('mode', mode)
-        .maybeSingle();
+        const { data: bankData } = await supabase
+          .from('tournament_banks')
+          .select('bank')
+          .eq('tournament', selectedTournament)
+          .eq('mode', mode)
+          .maybeSingle();
 
-      const bank = bankData?.bank || 1000;
+        const bank = bankData?.bank || 1000;
 
-      if (winners.length > 0) {
-        const prize = Math.floor(bank / winners.length);
+        if (winners.length > 0) {
+          const prize = Math.floor(bank / winners.length);
 
-        for (const winner of winners) {
-          const { data: user } = await supabase
-            .from('user_balances')
-            .select('crystals')
-            .eq('telegram_id', winner.telegram_id)
-            .single();
+          for (const winner of winners) {
+            const { data: user } = await supabase
+              .from('user_balances')
+              .select('crystals')
+              .eq('telegram_id', winner.telegram_id)
+              .single();
 
-          const currentCrystals = user?.crystals || 500;
-          await supabase
-            .from('user_balances')
-            .upsert({
-              telegram_id: winner.telegram_id,
-              crystals: currentCrystals + prize
-            });
+            const currentCrystals = user?.crystals || 500;
+            await supabase
+              .from('user_balances')
+              .upsert({ telegram_id: winner.telegram_id, crystals: currentCrystals + prize });
+          }
+          alert(`✅ ${mode}: ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
+        } else {
+          const nextTournament = tournaments.find(t => t.name !== selectedTournament);
+          if (nextTournament) {
+            const { data: nextBank } = await supabase
+              .from('tournament_banks')
+              .select('bank')
+              .eq('tournament', nextTournament.name)
+              .eq('mode', mode)
+              .maybeSingle();
+
+            const nextBankAmount = (nextBank?.bank || 1000) + Math.floor(bank / 2);
+            await supabase
+              .from('tournament_banks')
+              .upsert({ tournament: nextTournament.name, mode, bank: nextBankAmount });
+            alert(`❌ ${mode}: победителей нет. Половина банка перенесена.`);
+          }
         }
-        alert(`✅ ${mode}: ${winners.length} победителей! Каждый получил по ${prize} cryst.`);
-      } else {
-        // Перенос половины банка на следующий турнир этого режима
-        const nextTournament = tournaments.find(t => t.name !== selectedTournament);
-        if (nextTournament) {
-          const { data: nextBank } = await supabase
-            .from('tournament_banks')
-            .select('bank')
-            .eq('tournament', nextTournament.name)
-            .eq('mode', mode)
-            .maybeSingle();
 
-          const nextBankAmount = (nextBank?.bank || 1000) + Math.floor(bank / 2);
-          await supabase
-            .from('tournament_banks')
-            .upsert({ tournament: nextTournament.name, mode, bank: nextBankAmount });
-          alert(`❌ ${mode}: победителей нет. Половина банка (${Math.floor(bank / 2)} cryst) перенесена на следующий турнир.`);
-        }
+        // Удаляем банк и ставки
+        await supabase.from('tournament_banks').delete().eq('tournament', selectedTournament).eq('mode', mode);
+        await supabase.from('bets').delete().eq('tournament', selectedTournament).eq('mode', mode);
       }
 
-      // Удаляем банк и ставки этого режима
-      await supabase
-        .from('tournament_banks')
-        .delete()
-        .eq('tournament', selectedTournament)
-        .eq('mode', mode);
+      // === ФИКС: сразу удаляем турнир из состояния ===
+      await supabase.from('tournaments').delete().eq('name', selectedTournament);
 
-      await supabase
-        .from('bets')
-        .delete()
-        .eq('tournament', selectedTournament)
-        .eq('mode', mode);
+      // Обновляем кэш баланса у всех пользователей
+      queryClient.invalidateQueries({ queryKey: ['userCrystals'] });
+
+      // Локально удаляем турнир из списка (чтобы сразу исчез)
+      setTournaments(prev => prev.filter(t => t.name !== selectedTournament));
+
+      alert('✅ Турнир полностью завершён! Баланс обновлён, турнир удалён из всех вкладок.');
+      setShowResultModal(false);
+    } catch (error) {
+      console.error('Ошибка завершения турнира:', error);
+      alert('❌ Ошибка при завершении турнира. Посмотри консоль.');
     }
-
-    // 4. Полностью удаляем турнир из списка
-    await supabase
-      .from('tournaments')
-      .delete()
-      .eq('name', selectedTournament);
-
-    alert('Турнир полностью завершён и удалён из всех вкладок!');
-    setShowResultModal(false);
-
-    // Обновляем список турниров
-    const { data } = await supabase
-      .from('tournaments')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (data) setTournaments(data);
   };
 
   const addNewTournament = async () => {
