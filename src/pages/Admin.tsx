@@ -182,13 +182,29 @@ export function Admin() {
       return;
     }
 
+    // Полный набор команд по умолчанию (чтобы не зависеть от старого tournamentsData)
+    const defaultTeams = [
+      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
+      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
+      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
+      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
+      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
+      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
+      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
+      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
+      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
+    ];
+
     const newData = {
       name: newTournament.name,
       date: newTournament.date || 'Дата не указана',
       prize: newTournament.prize || '$0',
       status: 'Скоро',
       color: 'bg-yellow-500',
-      teams: tournamentsData[0].teams // временно копируем команды от первого турнира
+      teams: defaultTeams
     };
 
     const { error } = await supabase
@@ -196,8 +212,8 @@ export function Admin() {
       .insert(newData);
 
     if (error) {
-      alert('Ошибка при добавлении турнира');
-      console.error(error);
+      alert('Ошибка при добавлении турнира: ' + error.message);
+      console.error('Supabase error:', error);
       return;
     }
 
@@ -205,7 +221,7 @@ export function Admin() {
     setShowAddModal(false);
     setNewTournament({ name: '', date: '', prize: '' });
 
-    // Перезагружаем список турниров
+    // Перезагружаем список
     supabase
       .from('tournaments')
       .select('*')
