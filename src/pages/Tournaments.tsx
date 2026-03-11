@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCrystals } from '../hooks/useCrystals';
 import { useBank } from '../hooks/useBank';
 import { supabase } from '../main';
+import { hltvTeams } from '../data/teams';
 
 interface Bet {
   id: number;
@@ -82,6 +83,11 @@ export function Tournaments() {
   };
 
   const hasBet = (tournament: string, mode: string) => {
+      // Получаем правильный логотип по имени команды из глобального списка
+  const getTeamLogo = (teamName: string) => {
+    const team = hltvTeams.find(t => t.name === teamName);
+    return team ? team.logo : "https://www.hltv.org/img/static/team/logo/5973.png"; // fallback
+  };
     return bets.some(b => b.tournament === tournament && b.mode === mode);
   };
 
@@ -196,7 +202,7 @@ export function Tournaments() {
                       onClick={() => addTeam(team.name)}
                       className="bg-zinc-800 hover:bg-zinc-700 p-4 rounded-2xl flex items-center gap-4 active:scale-95"
                     >
-                      <img src={team.logo} alt="" className="w-10 h-10 rounded-full" />
+                      <img src={getTeamLogo(team.name)} alt="" className="w-10 h-10 rounded-full" />
                       <span className="text-white text-lg">{team.name}</span>
                     </button>
                   ))}
