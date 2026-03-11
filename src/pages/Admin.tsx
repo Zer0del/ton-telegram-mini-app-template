@@ -243,8 +243,7 @@ export function Admin() {
         </div>
       )}
 
-      {/* Модалка добавления турнира — обновлённая */}
-      {/* Модалка добавления турнира — скроллится + новые поля */}
+      {/* Модалка добавления турнира — полностью скроллится + кнопка всегда внизу */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
           <div className="bg-[#171717] w-full max-w-md rounded-3xl p-6 max-h-[92vh] overflow-y-auto">
@@ -274,7 +273,7 @@ export function Admin() {
               onChange={(e) => setNewTournament({...newTournament, endDate: e.target.value})}
             />
 
-            {/* Выбор команд (теперь видно всё) */}
+            {/* Выбор команд */}
             <div className="mt-6">
               <div className="text-sm text-zinc-400 mb-3">Выбери команды-участницы</div>
               <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
@@ -313,7 +312,8 @@ export function Admin() {
               </div>
             </div>
 
-            <div className="flex gap-3 mt-8 sticky bottom-0 bg-[#171717] pt-4">
+            {/* Кнопки всегда внизу */}
+            <div className="flex gap-3 mt-8 sticky bottom-0 bg-[#171717] pt-4 pb-2">
               <button onClick={() => setShowAddModal(false)} className="flex-1 py-4 bg-zinc-700 rounded-2xl">Отмена</button>
               <button onClick={addNewTournament} className="flex-1 py-4 bg-green-500 text-black rounded-2xl font-medium">Добавить турнир</button>
             </div>
