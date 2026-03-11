@@ -147,7 +147,7 @@ export function Admin() {
               .eq('telegram_id', winner.telegram_id)
               .single();
 
-            const currentCrystals = user?.crystals || 500;
+            const currentCrystals = user?.crystals || 0;  // ← фикс двойного +500
             await supabase
               .from('user_balances')
               .upsert({ telegram_id: winner.telegram_id, crystals: currentCrystals + prize });
