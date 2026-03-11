@@ -9,7 +9,12 @@ export function Admin() {
   const [realResult, setRealResult] = useState<string[]>([]);
   const [showResultModal, setShowResultModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newTournament, setNewTournament] = useState({ name: '', date: '', prize: '' });
+  const [newTournament, setNewTournament] = useState({ 
+    name: '', 
+    startDate: '', 
+    endDate: '', 
+    selectedTeams: [] as string[] 
+  });
   const [tournaments, setTournaments] = useState<any[]>([]);
   const queryClient = useQueryClient();   // ← добавили для обновления баланса
 
@@ -162,34 +167,25 @@ export function Admin() {
   };
 
   const addNewTournament = async () => {
-    if (!newTournament.name) {
-      alert('Введите название турнира!');
+    if (!newTournament.name || !newTournament.startDate || !newTournament.endDate) {
+      alert('Заполни название, начало и конец турнира!');
+      return;
+    }
+    if (newTournament.selectedTeams.length === 0) {
+      alert('Выбери хотя бы одну команду!');
       return;
     }
 
-    // Полный набор команд по умолчанию (чтобы не зависеть от старого tournamentsData)
-    const defaultTeams = [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
-      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
-      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
-      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
-      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
-      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
-    ];
-
     const newData = {
       name: newTournament.name,
-      date: newTournament.date || 'Дата не указана',
-      prize: newTournament.prize || '$0',
+      startDate: newTournament.startDate,
+      endDate: newTournament.endDate,
       status: 'Скоро',
       color: 'bg-yellow-500',
-      teams: defaultTeams
+      teams: newTournament.selectedTeams.map(name => ({
+        name,
+        logo: "https://www.hltv.org/img/static/team/logo/5973.png" // можно потом сделать отдельный выбор логотипов
+      }))
     };
 
     const { error } = await supabase
@@ -204,7 +200,7 @@ export function Admin() {
 
     alert('Новый турнир успешно добавлен!');
     setShowAddModal(false);
-    setNewTournament({ name: '', date: '', prize: '' });
+    setNewTournament({ name: '', startDate: '', endDate: '', selectedTeams: [] });
 
     // Перезагружаем список
     supabase
@@ -247,7 +243,7 @@ export function Admin() {
         </div>
       )}
 
-      {/* Модалка добавления турнира */}
+      {/* Модалка добавления турнира — обновлённая */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
           <div className="bg-[#171717] w-full max-w-md rounded-3xl p-6">
@@ -260,20 +256,61 @@ export function Admin() {
               value={newTournament.name}
               onChange={(e) => setNewTournament({...newTournament, name: e.target.value})}
             />
+            
             <input 
               type="text" 
-              placeholder="Дата (18–29 марта)" 
+              placeholder="Начало (например: 18 марта)" 
               className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
-              value={newTournament.date}
-              onChange={(e) => setNewTournament({...newTournament, date: e.target.value})}
+              value={newTournament.startDate}
+              onChange={(e) => setNewTournament({...newTournament, startDate: e.target.value})}
             />
+            
             <input 
               type="text" 
-              placeholder="Призовой фонд ($1 100 000)" 
+              placeholder="Конец (например: 29 марта)" 
               className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
-              value={newTournament.prize}
-              onChange={(e) => setNewTournament({...newTournament, prize: e.target.value})}
+              value={newTournament.endDate}
+              onChange={(e) => setNewTournament({...newTournament, endDate: e.target.value})}
             />
+
+            {/* Выбор команд */}
+            <div className="mt-6">
+              <div className="text-sm text-zinc-400 mb-3">Выбери команды-участницы</div>
+              <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                {[
+                  "Vitality", "Team Spirit", "NaVi", "G2 Esports", "Team Liquid",
+                  "FaZe Clan", "MOUZ", "Astralis", "BIG", "3DMAX",
+                  "Eternal Fire", "HEROIC"
+                ].map(team => {
+                  const isSelected = newTournament.selectedTeams.includes(team);
+                  return (
+                    <button
+                      key={team}
+                      onClick={() => {
+                        if (isSelected) {
+                          setNewTournament({
+                            ...newTournament,
+                            selectedTeams: newTournament.selectedTeams.filter(t => t !== team)
+                          });
+                        } else {
+                          setNewTournament({
+                            ...newTournament,
+                            selectedTeams: [...newTournament.selectedTeams, team]
+                          });
+                        }
+                      }}
+                      className={`p-3 rounded-2xl text-sm transition-all ${
+                        isSelected 
+                          ? 'bg-green-500 text-black' 
+                          : 'bg-zinc-800 hover:bg-zinc-700 text-white'
+                      }`}
+                    >
+                      {team}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             <div className="flex gap-3 mt-8">
               <button onClick={() => setShowAddModal(false)} className="flex-1 py-4 bg-zinc-700 rounded-2xl">Отмена</button>
