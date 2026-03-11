@@ -170,22 +170,33 @@ export function Admin() {
             alert(`❌ ${mode}: победителей нет. Половина банка перенесена.`);
           }
         }
-
-        // Удаляем банк и ставки
-        await supabase.from('tournament_banks').delete().eq('tournament', selectedTournament).eq('mode', mode);
-        await supabase.from('bets').delete().eq('tournament', selectedTournament).eq('mode', mode);
       }
 
-      // === ФИКС: сразу удаляем турнир из состояния ===
-      await supabase.from('tournaments').delete().eq('name', selectedTournament);
+      // === ГАРАНТИРОВАННОЕ УДАЛЕНИЕ ВСЕХ СТАВОК ТУРНИРА (одним запросом) ===
+      await supabase
+        .from('bets')
+        .delete()
+        .eq('tournament', selectedTournament);
 
-      // Обновляем кэш баланса у всех пользователей
+      // Удаляем все банки турнира
+      await supabase
+        .from('tournament_banks')
+        .delete()
+        .eq('tournament', selectedTournament);
+
+      // Удаляем сам турнир
+      await supabase
+        .from('tournaments')
+        .delete()
+        .eq('name', selectedTournament);
+
+      // Обновляем кэш баланса
       queryClient.invalidateQueries({ queryKey: ['userCrystals'] });
 
-      // Локально удаляем турнир из списка (чтобы сразу исчез)
+      // Локально удаляем турнир из списка
       setTournaments(prev => prev.filter(t => t.name !== selectedTournament));
 
-      alert('✅ Турнир полностью завершён! Баланс обновлён, турнир удалён из всех вкладок.');
+      alert('✅ Турнир полностью завершён! Все ставки удалены из Supabase, баланс обновлён.');
       setShowResultModal(false);
     } catch (error) {
       console.error('Ошибка завершения турнира:', error);
