@@ -11,8 +11,8 @@ export function Admin() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTournament, setNewTournament] = useState({ 
     name: '', 
-    startDate: '', 
-    endDate: '', 
+    start_date: '', 
+    end_date: '', 
     selectedTeams: [] as string[] 
   });
   const [tournaments, setTournaments] = useState<any[]>([]);
@@ -178,13 +178,13 @@ export function Admin() {
 
     const newData = {
       name: newTournament.name,
-      startDate: newTournament.startDate,
-      endDate: newTournament.endDate,
+      start_date: newTournament.start_date,
+      end_date: newTournament.end_date,
       status: 'Скоро',
       color: 'bg-yellow-500',
       teams: newTournament.selectedTeams.map(name => ({
         name,
-        logo: "https://www.hltv.org/img/static/team/logo/5973.png" // можно потом сделать отдельный выбор логотипов
+        logo: "https://www.hltv.org/img/static/team/logo/5973.png"
       }))
     };
 
@@ -200,7 +200,7 @@ export function Admin() {
 
     alert('Новый турнир успешно добавлен!');
     setShowAddModal(false);
-    setNewTournament({ name: '', startDate: '', endDate: '', selectedTeams: [] });
+    setNewTournament({ name: '', start_date: '', end_date: '', selectedTeams: [] });
 
     // Перезагружаем список
     supabase
@@ -261,16 +261,16 @@ export function Admin() {
               type="text" 
               placeholder="Начало (например: 18 марта)" 
               className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
-              value={newTournament.startDate}
-              onChange={(e) => setNewTournament({...newTournament, startDate: e.target.value})}
+              value={newTournament.start_date}
+              onChange={(e) => setNewTournament({...newTournament, start_date: e.target.value})}
             />
             
             <input 
               type="text" 
               placeholder="Конец (например: 29 марта)" 
               className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
-              value={newTournament.endDate}
-              onChange={(e) => setNewTournament({...newTournament, endDate: e.target.value})}
+              value={newTournament.end_date}
+              onChange={(e) => setNewTournament({...newTournament, end_date: e.target.value})}
             />
 
             {/* Выбор команд */}
