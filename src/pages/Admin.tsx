@@ -2,46 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../main';
 import { useQueryClient } from '@tanstack/react-query';   // ← добавили
 
-const tournamentsData = [
-  {
-    name: "BLAST Open Rotterdam 2026",
-    date: "18–29 марта",
-    prize: "$1 100 000",
-    status: "LIVE",
-    color: "bg-red-500",
-    teams: [
-      { name: "Vitality", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "Team Spirit", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "NaVi", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "G2 Esports", logo: "https://www.hltv.org/img/static/team/logo/5995.png" },
-      { name: "Team Liquid", logo: "https://www.hltv.org/img/static/team/logo/5973.png" },
-      { name: "FaZe Clan", logo: "https://www.hltv.org/img/static/team/logo/6667.png" },
-      { name: "MOUZ", logo: "https://www.hltv.org/img/static/team/logo/5000.png" },
-      { name: "Astralis", logo: "https://www.hltv.org/img/static/team/logo/6665.png" },
-      { name: "BIG", logo: "https://www.hltv.org/img/static/team/logo/7532.png" },
-      { name: "3DMAX", logo: "https://www.hltv.org/img/static/team/logo/7020.png" },
-      { name: "Eternal Fire", logo: "https://www.hltv.org/img/static/team/logo/11251.png" },
-      { name: "HEROIC", logo: "https://www.hltv.org/img/static/team/logo/7178.png" }
-    ]
-  },
-  {
-    name: "ESL Pro League Season 23 Finals",
-    date: "13–15 марта",
-    prize: "$275 000",
-    status: "Скоро",
-    color: "bg-yellow-500",
-    teams: [ /* те же 12 команд */ ]
-  },
-  {
-    name: "PGL Bucharest 2026",
-    date: "3–11 апреля",
-    prize: "$1 250 000",
-    status: "Скоро",
-    color: "bg-yellow-500",
-    teams: [ /* те же 12 команд */ ]
-  }
-];
-
 export function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [selectedTournament, setSelectedTournament] = useState('');
@@ -69,9 +29,6 @@ export function Admin() {
         if (data) setTournaments(data);
       });
   }, []);
-  
-  // Fallback на локальные турниры, если Supabase пустой
-  const displayTournaments = tournaments.length > 0 ? tournaments : tournamentsData;
   
     // Загружаем полный турнир с командами при открытии модалки
   useEffect(() => {
@@ -271,17 +228,24 @@ export function Admin() {
         + Добавить новый турнир
       </button>
 
-      {displayTournaments.map((t, i) => (
-        <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
-          <h2 className="text-xl font-bold mb-4">{t.name}</h2>
-          <button
-            onClick={() => finishTournament(t.name)}
-            className="w-full bg-red-600 hover:bg-red-700 py-6 rounded-2xl text-lg font-medium"
-          >
-            Завершить турнир
-          </button>
+      {tournaments.length > 0 ? (
+        tournaments.map((t, i) => (
+          <div key={i} className="mb-8 bg-zinc-900 rounded-3xl p-5">
+            <h2 className="text-xl font-bold mb-4">{t.name}</h2>
+            <button
+              onClick={() => finishTournament(t.name)}
+              className="w-full bg-red-600 hover:bg-red-700 py-6 rounded-2xl text-lg font-medium"
+            >
+              Завершить турнир
+            </button>
+          </div>
+        ))
+      ) : (
+        <div className="text-center py-20 text-zinc-400 bg-zinc-900 rounded-3xl p-8">
+          Нет активных турниров<br />
+          Добавьте новый турнир выше ↑
         </div>
-      ))}
+      )}
 
       {/* Модалка добавления турнира */}
       {showAddModal && (
