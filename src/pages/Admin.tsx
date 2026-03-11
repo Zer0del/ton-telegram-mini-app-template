@@ -167,7 +167,7 @@ export function Admin() {
   };
 
   const addNewTournament = async () => {
-    if (!newTournament.name || !newTournament.startDate || !newTournament.endDate) {
+    if (!newTournament.name || !newTournament.start_date || !newTournament.end_date) {
       alert('Заполни название, начало и конец турнира!');
       return;
     }
