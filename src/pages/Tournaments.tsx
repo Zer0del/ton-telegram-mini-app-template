@@ -71,6 +71,12 @@ export function Tournaments() {
 
   const currentTournamentData = tournaments.find(t => t.name === currentTournament);
 
+  // Получаем правильный логотип по имени команды из глобального списка
+  const getTeamLogo = (teamName: string) => {
+    const team = hltvTeams.find(t => t.name === teamName);
+    return team ? team.logo : "https://www.hltv.org/img/static/team/logo/5973.png"; // fallback
+  };
+
   const addTeam = (teamName: string) => {
     const max = parseInt(currentMode.replace('Top-', ''));
     if (prediction.length < max && !prediction.includes(teamName)) {
@@ -83,11 +89,6 @@ export function Tournaments() {
   };
 
   const hasBet = (tournament: string, mode: string) => {
-      // Получаем правильный логотип по имени команды из глобального списка
-  const getTeamLogo = (teamName: string) => {
-    const team = hltvTeams.find(t => t.name === teamName);
-    return team ? team.logo : "https://www.hltv.org/img/static/team/logo/5973.png"; // fallback
-  };
     return bets.some(b => b.tournament === tournament && b.mode === mode);
   };
 
