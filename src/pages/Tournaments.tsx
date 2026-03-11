@@ -203,7 +203,7 @@ export function Tournaments() {
                       onClick={() => addTeam(team.name)}
                       className="bg-zinc-800 hover:bg-zinc-700 p-4 rounded-2xl flex items-center gap-4 active:scale-95"
                     >
-                      <img src={getTeamLogo(team.name)} alt="" className="w-10 h-10 rounded-2xl object-cover" />
+                      <img src={getTeamLogo(team.name)} alt="" className="w-10 h-10 rounded-none object-cover" />
                       <span className="text-white text-lg">{team.name}</span>
                     </button>
                   ))}
