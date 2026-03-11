@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../main';
 import { useQueryClient } from '@tanstack/react-query';   // ← добавили
+import { hltvTeams } from '../data/teams';
 
 export function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -15,6 +16,7 @@ export function Admin() {
     end_date: '', 
     selectedTeams: [] as string[] 
   });
+  const [searchTerm, setSearchTerm] = useState('');
   const [tournaments, setTournaments] = useState<any[]>([]);
   const queryClient = useQueryClient();   // ← добавили для обновления баланса
 
@@ -243,7 +245,7 @@ export function Admin() {
         </div>
       )}
 
-      {/* Модалка добавления турнира — полностью скроллится + кнопка всегда внизу */}
+      {/* Модалка добавления турнира — поиск по всем 50 командам */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
           <div className="bg-[#171717] w-full max-w-md rounded-3xl p-6 max-h-[92vh] overflow-y-auto">
@@ -273,42 +275,48 @@ export function Admin() {
               onChange={(e) => setNewTournament({...newTournament, end_date: e.target.value})}
             />
 
-            {/* Выбор команд */}
+            {/* Поиск + выбор команд */}
             <div className="mt-6">
+              <input 
+                type="text" 
+                placeholder="Поиск команды..." 
+                className="w-full bg-zinc-800 p-4 rounded-2xl mb-3 text-white"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
               <div className="text-sm text-zinc-400 mb-3">Выбери команды-участницы</div>
               <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-                {[
-                  "Vitality", "Team Spirit", "NaVi", "G2 Esports", "Team Liquid",
-                  "FaZe Clan", "MOUZ", "Astralis", "BIG", "3DMAX",
-                  "Eternal Fire", "HEROIC"
-                ].map(team => {
-                  const isSelected = newTournament.selectedTeams.includes(team);
-                  return (
-                    <button
-                      key={team}
-                      onClick={() => {
-                        if (isSelected) {
-                          setNewTournament({
-                            ...newTournament,
-                            selectedTeams: newTournament.selectedTeams.filter(t => t !== team)
-                          });
-                        } else {
-                          setNewTournament({
-                            ...newTournament,
-                            selectedTeams: [...newTournament.selectedTeams, team]
-                          });
-                        }
-                      }}
-                      className={`p-3 rounded-2xl text-sm transition-all ${
-                        isSelected 
-                          ? 'bg-green-500 text-black' 
-                          : 'bg-zinc-800 hover:bg-zinc-700 text-white'
-                      }`}
-                    >
-                      {team}
-                    </button>
-                  );
-                })}
+                {hltvTeams
+                  .filter(team => team.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .map(team => {
+                    const isSelected = newTournament.selectedTeams.includes(team.name);
+                    return (
+                      <button
+                        key={team.name}
+                        onClick={() => {
+                          if (isSelected) {
+                            setNewTournament({
+                              ...newTournament,
+                              selectedTeams: newTournament.selectedTeams.filter(t => t !== team.name)
+                            });
+                          } else {
+                            setNewTournament({
+                              ...newTournament,
+                              selectedTeams: [...newTournament.selectedTeams, team.name]
+                            });
+                          }
+                        }}
+                        className={`p-3 rounded-2xl text-sm transition-all flex items-center gap-2 ${
+                          isSelected 
+                            ? 'bg-green-500 text-black' 
+                            : 'bg-zinc-800 hover:bg-zinc-700 text-white'
+                        }`}
+                      >
+                        <img src={team.logo} alt="" className="w-6 h-6 rounded-full" />
+                        {team.name}
+                      </button>
+                    );
+                  })}
               </div>
             </div>
 
