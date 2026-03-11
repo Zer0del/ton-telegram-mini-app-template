@@ -15,12 +15,17 @@ export function MyBets() {
   const [loading, setLoading] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Загрузка ставок + автоматическое обновление после завершения турнира в Admin
+  // === ФЛАГ ОЧИСТКИ (сохраняется даже при смене вкладок) ===
+  const [isCleared, setIsCleared] = useState(() => 
+    localStorage.getItem('betsCleared') === 'true'
+  );
+
+  // Загрузка ставок + автоматическое обновление (но только если не очищено)
   useEffect(() => {
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
 
-    if (!telegramId) {
+    if (!telegramId || isCleared) {
       setLoading(false);
       return;
     }
@@ -39,11 +44,16 @@ export function MyBets() {
 
     loadBets();
 
-    // Автообновление каждые 2 секунды — ставки исчезают мгновенно
     const interval = setInterval(loadBets, 2000);
-        intervalRef.current = interval;
-    return () => clearInterval(interval);
-  }, []);
+    intervalRef.current = interval;
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isCleared]);   // ← перезапускается только при изменении флага
 
   if (loading) return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
 
@@ -73,14 +83,16 @@ export function MyBets() {
 
               if (error) throw error;
 
-              // Останавливаем автообновление навсегда
+              // Останавливаем интервал и сохраняем флаг навсегда
               if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
               }
+              localStorage.setItem('betsCleared', 'true');
+              setIsCleared(true);
 
               setBets([]);
-              alert('✅ Все ставки успешно очищены и больше не вернутся');
+              alert('✅ Все ставки успешно очищены и больше никогда не вернутся');
             } catch (err) {
               console.error('Ошибка очистки:', err);
               alert('❌ Ошибка при очистке. Посмотри консоль');
