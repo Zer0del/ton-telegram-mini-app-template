@@ -20,7 +20,7 @@ export function MyBets() {
     localStorage.getItem('betsCleared') === 'true'
   );
 
-  // Загрузка ставок + автоматическое обновление (но только если не очищено)
+  // Загрузка ставок + realtime-подписка Supabase (ставки исчезают мгновенно после завершения турнира)
   useEffect(() => {
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
@@ -30,7 +30,7 @@ export function MyBets() {
       return;
     }
 
-    // Автоматически сбрасываем флаг очистки при заходе на страницу
+    // Автоматически сбрасываем флаг очистки при заходе
     if (isCleared) {
       localStorage.removeItem('betsCleared');
       setIsCleared(false);
@@ -50,16 +50,30 @@ export function MyBets() {
 
     loadBets();
 
-    const interval = setInterval(loadBets, 2000);
-    intervalRef.current = interval;
+    // === REALTIME ПОДПИСКА — ставки исчезают мгновенно ===
+    const channel = supabase
+      .channel('my-bets-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // INSERT, UPDATE, DELETE
+          schema: 'public',
+          table: 'bets',
+          filter: `telegram_id=eq.${telegramId}`
+        },
+        () => loadBets() // мгновенно обновляем список
+      )
+      .subscribe();
 
+    // Очищаем при размонтировании
     return () => {
+      supabase.removeChannel(channel);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, [isCleared]);   // ← перезапускается только при изменении флага
+  }, [isCleared]);
 
   if (loading) return <div className="p-4 text-center text-zinc-400">Загрузка ставок...</div>;
 
