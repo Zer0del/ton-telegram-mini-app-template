@@ -19,6 +19,7 @@ export function Tournaments() {
   const [currentMode, setCurrentMode] = useState('');
   const [prediction, setPrediction] = useState<string[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);   // ← добавили
 
   // === ДИНАМИЧЕСКАЯ ЗАГРУЗКА ТУРНИРОВ ИЗ SUPABASE ===
   const [tournaments, setTournaments] = useState<any[]>([]);
@@ -93,11 +94,11 @@ export function Tournaments() {
   };
 
   const handleConfirmBet = async () => {
+    if (isSubmitting) return; // защита от двойных кликов
     if (prediction.length !== parseInt(currentMode.replace('Top-', ''))) {
       alert('Выбери все места!');
       return;
     }
-
     if (crystals < 100) {
       alert('Недостаточно кристаликов!');
       return;
@@ -111,27 +112,36 @@ export function Tournaments() {
       return;
     }
 
-    // Списываем у пользователя
-    updateCrystals(crystals - 100);
+    setIsSubmitting(true); // блокируем кнопку
 
-    // Добавляем в общий банк
-    await addToBank(100);
+    try {
+      // Списываем кристалики
+      updateCrystals(crystals - 100);
 
-    // Сохраняем ставку в Supabase
-    const newBet = {
-      telegram_id: telegramId,
-      tournament: currentTournament,
-      mode: currentMode,
-      prediction: [...prediction],
-      amount: 100,
-      date: new Date().toLocaleDateString('ru-RU')
-    };
+      // Добавляем в банк
+      await addToBank(100);
 
-    await supabase.from('bets').insert(newBet);
+      // Сохраняем ставку
+      const newBet = {
+        telegram_id: telegramId,
+        tournament: currentTournament,
+        mode: currentMode,
+        prediction: [...prediction],
+        amount: 100,
+        date: new Date().toLocaleDateString('ru-RU')
+      };
 
-    alert(`Ставка принята! Банк вырос.`);
-    setShowBetModal(false);
-    setPrediction([]);
+      await supabase.from('bets').insert(newBet);
+
+      alert(`Ставка принята! Банк вырос.`);
+      setShowBetModal(false);
+      setPrediction([]);
+    } catch (err) {
+      console.error(err);
+      alert('Ошибка при отправке ставки. Попробуй ещё раз.');
+    } finally {
+      setIsSubmitting(false); // разблокируем кнопку
+    }
   };
 
   // === ВНУТРЕННИЙ КОМПОНЕНТ ДЛЯ БАНКА (решает нарушение хуков) ===
@@ -212,7 +222,17 @@ export function Tournaments() {
 
             <div className="p-4 border-t border-zinc-800 flex gap-3 bg-[#171717] pb-8">
               <button onClick={() => setShowBetModal(false)} className="flex-1 py-4 bg-red-500 rounded-2xl text-lg font-medium">Отмена</button>
-              <button onClick={handleConfirmBet} className="flex-1 py-4 bg-green-500 rounded-2xl text-lg font-medium text-black">Подтвердить (100 cryst)</button>
+              <button 
+                onClick={handleConfirmBet} 
+                disabled={isSubmitting}
+                className={`flex-1 py-4 rounded-2xl text-lg font-medium text-black transition-all ${
+                  isSubmitting 
+                    ? 'bg-zinc-500 cursor-not-allowed' 
+                    : 'bg-green-500 hover:bg-green-600 active:scale-95'
+                }`}
+              >
+                {isSubmitting ? 'Отправка...' : 'Подтвердить (100 cryst)'}
+              </button>
             </div>
           </div>
         </div>
