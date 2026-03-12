@@ -25,9 +25,15 @@ export function MyBets() {
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
 
-    if (!telegramId || isCleared) {
+    if (!telegramId) {
       setLoading(false);
       return;
+    }
+
+    // Автоматически сбрасываем флаг очистки при заходе на страницу
+    if (isCleared) {
+      localStorage.removeItem('betsCleared');
+      setIsCleared(false);
     }
 
     const loadBets = () => {
