@@ -94,8 +94,7 @@ export function MyBets() {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
               }
-              localStorage.setItem('betsCleared', 'true');
-              setIsCleared(true);
+              // Флаг не ставим — очистка теперь только ручная
 
               setBets([]);
               alert('✅ Все ставки успешно очищены и больше никогда не вернутся');
