@@ -136,23 +136,35 @@ export function Admin() {
         }
       }
 
-      // === ГАРАНТИРОВАННОЕ УДАЛЕНИЕ ВСЕХ СТАВОК ТУРНИРА (одним запросом) ===
-      await supabase
+      // === ГАРАНТИРОВАННОЕ УДАЛЕНИЕ ВСЕХ СТАВОК ТУРНИРА (с логированием) ===
+      console.log('🚀 Начинаем удаление ставок для турнира:', selectedTournament);
+
+      const { error: betsError } = await supabase
         .from('bets')
         .delete()
         .eq('tournament', selectedTournament);
 
+      if (betsError) {
+        console.error('❌ Ошибка удаления ставок:', betsError);
+      } else {
+        console.log('✅ Ставки успешно удалены');
+      }
+
       // Удаляем все банки турнира
-      await supabase
+      const { error: banksError } = await supabase
         .from('tournament_banks')
         .delete()
         .eq('tournament', selectedTournament);
 
+      if (banksError) console.error('❌ Ошибка удаления банков:', banksError);
+
       // Удаляем сам турнир
-      await supabase
+      const { error: tournamentError } = await supabase
         .from('tournaments')
         .delete()
         .eq('name', selectedTournament);
+
+      if (tournamentError) console.error('❌ Ошибка удаления турнира:', tournamentError);
 
       // Обновляем кэш баланса
       queryClient.invalidateQueries({ queryKey: ['userCrystals'] });
@@ -163,8 +175,8 @@ export function Admin() {
       alert('✅ Турнир полностью завершён! Все ставки удалены из Supabase, баланс обновлён.');
       setShowResultModal(false);
     } catch (error) {
-      console.error('Ошибка завершения турнира:', error);
-      alert('❌ Ошибка при завершении турнира. Посмотри консоль.');
+      console.error('🔥 Критическая ошибка завершения турнира:', error);
+      alert('❌ Ошибка при завершении турнира. Посмотри консоль (F12).');
     }
   };
 
@@ -204,14 +216,14 @@ export function Admin() {
     setShowAddModal(false);
     setNewTournament({ name: '', start_date: '', end_date: '', selectedTeams: [] });
 
-    // Перезагружаем список
-    supabase
-      .from('tournaments')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) setTournaments(data);
-      });
+      // Перезагружаем список турниров сразу после удаления
+      supabase
+        .from('tournaments')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .then(({ data }) => {
+          if (data) setTournaments(data);
+        });
   };
 
   return (
