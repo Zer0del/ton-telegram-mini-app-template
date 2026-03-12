@@ -20,7 +20,7 @@ export function MyBets() {
     localStorage.getItem('betsCleared') === 'true'
   );
 
-  // Чистая realtime-подписка Supabase (ставки исчезают мгновенно после завершения турнира в Admin)
+  // Чистая realtime-подписка Supabase (ставки исчезают мгновенно после завершения турнира)
   useEffect(() => {
     const webApp = (window as any).Telegram?.WebApp;
     const telegramId = webApp?.initDataUnsafe?.user?.id;
